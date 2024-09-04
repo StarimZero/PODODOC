@@ -103,7 +103,7 @@ public class SearchFragment extends Fragment {
                 int index = obj.getInt("index");
                 Picasso.with(getActivity()).load(image).into(holder.image);
                 holder.index.setText(String.valueOf(index));
-                float rating=Float.parseFloat(obj.getString("rating"));
+                float rating=Float.parseFloat(obj.getString("wine_rating"));
                 holder.rating.setRating(rating);
                 String country=obj.getString("wine_country");
                 holder.country.setText(country);
@@ -115,7 +115,7 @@ public class SearchFragment extends Fragment {
                 holder.winery.setText(winery);
                 String region=obj.getString("wine_region");
                 holder.region.setText(region+" "+"/");
-                holder.point.setText("("+obj.getString("rating")+")");
+                holder.point.setText("("+obj.getString("wine_rating")+")");
 
                 String price = obj.optString("wine_price", "");
                 holder.price.setText(price+"원");
