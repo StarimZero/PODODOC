@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "42428002874",
+    "firebase_url": "https://kosmo-96bbe-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "kosmo-96bbe",
+    "storage_bucket": "kosmo-96bbe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42428002874:android:6ce0c2ca82c1f7c675bb03",
+        "android_client_info": {
+          "package_name": "com.example.ex06"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_fWtE8I15l1gEJyOOIzBelHT-OlFrZWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42428002874:android:133a63e7fa8253de75bb03",
+        "android_client_info": {
+          "package_name": "com.example.ex07"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_fWtE8I15l1gEJyOOIzBelHT-OlFrZWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42428002874:android:93967515cc610fb975bb03",
+        "android_client_info": {
+          "package_name": "com.pododoc.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_fWtE8I15l1gEJyOOIzBelHT-OlFrZWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
