@@ -1,157 +1,286 @@
 package com.pododoc.app;
 
-import static com.pododoc.app.RemoteService.BASE_URL;
-
-import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-
 import com.squareup.picasso.Picasso;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-
 public class HomeFragment extends Fragment {
-
     Retrofit retrofit;
     RemoteService remoteService;
     int page = 1;
     int total = 0;
-    JSONArray array = new JSONArray();
-    WineAdapter adapter = new WineAdapter();
+    JSONArray redArray = new JSONArray();
+    JSONArray whiteArray = new JSONArray();
+    WineAdapter redAdapter = new WineAdapter(true);
+    WineAdapter whiteAdapter = new WineAdapter(false);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
         retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(RemoteService.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         remoteService = retrofit.create(RemoteService.class);
 
-        getList();
+        // 버튼 초기화 및 클릭 리스너 설정
+        Button btnUnder50000 = view.findViewById(R.id.btn_under_50000);
+        Button btnUnder150000 = view.findViewById(R.id.btn_under_150000);
+        Button btnOver150000 = view.findViewById(R.id.btn_over_150000);
 
-        RecyclerView list = view.findViewById(R.id.list);
-        list.setAdapter(adapter);
-        StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL);
-        list.setLayoutManager(manager);
+        btnUnder50000.setOnClickListener(v -> getFilteredWines("50000"));
+        btnUnder150000.setOnClickListener(v -> getFilteredWines("150000"));
+        btnOver150000.setOnClickListener(v -> getFilteredWines("over150000"));
+
+        RecyclerView redWineList = view.findViewById(R.id.red_wine_list);
+        RecyclerView whiteWineList = view.findViewById(R.id.white_wine_list);
+
+        redWineList.setAdapter(redAdapter);
+        whiteWineList.setAdapter(whiteAdapter);
+
+        StaggeredGridLayoutManager redManager =
+                new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+        StaggeredGridLayoutManager whiteManager =
+                new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+
+        redWineList.setLayoutManager(redManager);
+        whiteWineList.setLayoutManager(whiteManager);
+
+        // 기본 데이터 로드
+        getFilteredWines("50000");
+
         return view;
-    }//온크리에이트
+    }
 
-    public void getList(){
-        Call<HashMap<String,Object>> call = remoteService.list(page);
-        call.enqueue(new Callback<HashMap<String, Object>>() {
-            @SuppressLint("NotifyDataSetChanged")
+    public void getFilteredWines(String priceRange) {
+        // 레드와인 데이터 요청
+        Call<HashMap<String, Object>> callRed = remoteService.basicRed(page, priceRange);
+        callRed.enqueue(new Callback<HashMap<String, Object>>() {
             @Override
             public void onResponse(Call<HashMap<String, Object>> call, Response<HashMap<String, Object>> response) {
-                JSONObject object = new JSONObject(response.body());
-                try {
-                    total = object.getInt("total");
-                    array = object.getJSONArray("list");
-                    Log.d("total", String.valueOf(total));
-                    Log.d("size", String.valueOf(array.length()));
-                    adapter.notifyDataSetChanged();
-                } catch (JSONException e) {
-                    Log.wtf("getList", e.toString());
+                if (response.body() != null) {
+                    try {
+                        JSONObject object = new JSONObject(response.body());
+                        redArray = object.getJSONArray("list");
+                        redAdapter.notifyDataSetChanged();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<HashMap<String, Object>> call, Throwable t) {
-
+                // Handle failure
             }
         });
-    }//get list
 
-    class WineAdapter extends RecyclerView.Adapter<WineAdapter.ViewHolder>{
+        // 화이트와인 데이터 요청
+        Call<HashMap<String, Object>> callWhite = remoteService.basicWhite(page, priceRange);
+        callWhite.enqueue(new Callback<HashMap<String, Object>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, Object>> call, Response<HashMap<String, Object>> response) {
+                if (response.body() != null) {
+                    try {
+                        JSONObject object = new JSONObject(response.body());
+                        whiteArray = object.getJSONArray("list");
+                        whiteAdapter.notifyDataSetChanged();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, Object>> call, Throwable t) {
+                // Handle failure
+            }
+        });
+    }
+
+    class WineAdapter extends RecyclerView.Adapter<WineAdapter.ViewHolder> {
+        private boolean isRedWine;
+
+        public WineAdapter(boolean isRedWine) {
+            this.isRedWine = isRedWine;
+        }
 
         @NonNull
         @Override
         public WineAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View item = getLayoutInflater().inflate(R.layout.item_wine_home, parent, false);
+            View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_wine_search, parent, false);
             return new ViewHolder(item);
         }
 
         @Override
         public void onBindViewHolder(@NonNull WineAdapter.ViewHolder holder, int position) {
+            JSONArray dataArray = isRedWine ? redArray : whiteArray;
             try {
-                JSONObject obj = array.getJSONObject(position);
+                JSONObject obj = dataArray.getJSONObject(position);
+
+                WineVO wineVO = new WineVO();
+                wineVO.setWineImage(obj.getString("wine_image"));
+                wineVO.setIndex(obj.getInt("index"));
+                wineVO.setWineRating((float) obj.getDouble("wine_rating"));
+                wineVO.setWineCountry(obj.getString("wine_country"));
+                wineVO.setWineType(obj.getString("wine_type"));
+                wineVO.setWineName(obj.getString("wine_name"));
+                wineVO.setWineWinery(obj.getString("wine_winery"));
+                wineVO.setWineRegion(obj.getString("wine_region"));
+                wineVO.setWinePrice(obj.optString("wine_price", ""));
+                wineVO.setFlavor1(obj.optString("flavor1", ""));
+                wineVO.setFlavor2(obj.optString("flavor2", ""));
+                wineVO.setFlavor3(obj.optString("flavor3", ""));
 
                 String image = obj.getString("wine_image");
-                Picasso.with(getActivity()).load(image).into(holder.image);
                 int index = obj.getInt("index");
+                Picasso.with(getActivity()).load(image).into(holder.image);
                 holder.index.setText(String.valueOf(index));
-                float rating = Float.parseFloat(String.valueOf(obj.getDouble("wine_rating")));
-                holder.rating.setRating(rating);
+                holder.rating.setRating((float) obj.getDouble("wine_rating"));
+                holder.country.setText(obj.getString("wine_country"));
+                holder.type.setText(obj.getString("wine_type"));
+                holder.name.setText(obj.getString("wine_name"));
+                holder.winery.setText(obj.getString("wine_winery"));
+                holder.region.setText(obj.getString("wine_region") + " /");
+                holder.point.setText("(" + obj.getString("wine_rating") + ")");
 
-                String name = obj.getString("wine_name");
-                holder.name.setText(name);
-                String country = obj.getString("wine_country");
-                holder.country.setText(country);
-                String grape = obj.getString("wine_grape");
-                holder.grape.setText(grape);
-                String type = obj.getString("wine_type");
-                holder.type.setText(type);
-                String flavor1 = obj.getString("flavor1");
-                holder.flavor1.setText(flavor1);
-                String flavor2 = obj.getString("flavor2");
-                holder.flavor2.setText(flavor2);
-                String flavor3 = obj.getString("flavor3");
-                holder.flavor3.setText(flavor3);
+                String price = obj.optString("wine_price", "");
+                holder.price.setText(price + "원");
 
+                List<String> flavors = new ArrayList<>();
+                if (!obj.optString("flavor1", "").isEmpty()) flavors.add(obj.optString("flavor1", ""));
+                if (!obj.optString("flavor2", "").isEmpty()) flavors.add(obj.optString("flavor2", ""));
+                if (!obj.optString("flavor3", "").isEmpty()) flavors.add(obj.optString("flavor3", ""));
+                String taste = TextUtils.join(", ", flavors);
+                holder.taste.setText(taste);
+
+                String strCountry = obj.getString("wine_country").toLowerCase().replace(" ", "");
+                int flagImage;
+                switch (strCountry) {
+                    case "argentina":
+                        flagImage = R.drawable.argentina;
+                        break;
+                    case "australia":
+                        flagImage = R.drawable.australia;
+                        break;
+                    case "austria":
+                        flagImage = R.drawable.austria;
+                        break;
+                    case "canada":
+                        flagImage = R.drawable.canada;
+                        break;
+                    case "chile":
+                        flagImage = R.drawable.chile;
+                        break;
+                    case "france":
+                        flagImage = R.drawable.france;
+                        break;
+                    case "georgia":
+                        flagImage = R.drawable.georgia;
+                        break;
+                    case "germany":
+                        flagImage = R.drawable.germany;
+                        break;
+                    case "hungary":
+                        flagImage = R.drawable.hungary;
+                        break;
+                    case "israel":
+                        flagImage = R.drawable.israel;
+                        break;
+                    case "italy":
+                        flagImage = R.drawable.italy;
+                        break;
+                    case "newzealnd":
+                        flagImage = R.drawable.newzealnd;
+                        break;
+                    case "portugal":
+                        flagImage = R.drawable.portugal;
+                        break;
+                    case "romania":
+                        flagImage = R.drawable.romania;
+                        break;
+                    case "southafrica":
+                        flagImage = R.drawable.southafrica;
+                        break;
+                    case "spain":
+                        flagImage = R.drawable.spain;
+                        break;
+                    case "switzerland":
+                        flagImage = R.drawable.switzerland;
+                        break;
+                    case "unitedstates":
+                        flagImage = R.drawable.unitedstates;
+                        break;
+                    default:
+                        flagImage = R.drawable.flag; // 기본 이미지
+                        break;
+                }
+                holder.ImageView.setImageResource(flagImage);
+
+                holder.card.setOnClickListener(v -> {
+                    Intent intent = new Intent(getActivity(), ReadActivity.class);
+                    intent.putExtra("wineVO", wineVO);
+                    startActivity(intent);
+                });
 
             } catch (JSONException e) {
-                Log.wtf("BIND", e.toString());
+                e.printStackTrace();
             }
         }
 
         @Override
         public int getItemCount() {
-            return array.length();
+            return (isRedWine ? redArray : whiteArray).length();
         }
 
-        class ViewHolder extends RecyclerView.ViewHolder{
-            ImageView image;
-            TextView name, country, type, grape, index, flavor1, flavor2, flavor3;
+        class ViewHolder extends RecyclerView.ViewHolder {
+            ImageView image, ImageView;
+            TextView name, type, country, price, index, region, taste, winery, point;
             RatingBar rating;
+            CardView card;
+
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
+                card = itemView.findViewById(R.id.card);
+                ImageView = itemView.findViewById(R.id.flag);
                 image = itemView.findViewById(R.id.image);
                 name = itemView.findViewById(R.id.name);
                 type = itemView.findViewById(R.id.type);
                 country = itemView.findViewById(R.id.country);
-                grape = itemView.findViewById(R.id.grape);
-                rating = itemView.findViewById(R.id.rating);
+                price = itemView.findViewById(R.id.price);
                 index = itemView.findViewById(R.id.index);
-                flavor1 = itemView.findViewById(R.id.flavor1);
-                flavor2 = itemView.findViewById(R.id.flavor2);
-                flavor3 = itemView.findViewById(R.id.flavor3);
+                region = itemView.findViewById(R.id.region);
+                taste = itemView.findViewById(R.id.taste);
+                winery = itemView.findViewById(R.id.winery);
+                point = itemView.findViewById(R.id.point);
+                rating = itemView.findViewById(R.id.rating);
             }
         }
     }
-
-}//프래그먼트
+}

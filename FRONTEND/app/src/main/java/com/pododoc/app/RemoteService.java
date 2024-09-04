@@ -12,4 +12,10 @@ public interface RemoteService {
     @GET("wine/list.json")
     Call<HashMap<String,Object>> list(@Query("page") int page);
 
+    @GET("wine/basicred.json")
+    Call<HashMap<String, Object>> basicRed(@Query("page") int page, @Query("price") String price);
+
+    @GET("wine/basicwhite.json")
+    Call<HashMap<String, Object>> basicWhite(@Query("page") int page, @Query("price") String price);
+
 }
