@@ -105,7 +105,7 @@ public class HomeFragment extends Fragment {
                 Picasso.with(getActivity()).load(image).into(holder.image);
                 int index = obj.getInt("index");
                 holder.index.setText(String.valueOf(index));
-                float rating = Float.parseFloat(String.valueOf(obj.getDouble("rating")));
+                float rating = Float.parseFloat(String.valueOf(obj.getDouble("wine_rating")));
                 holder.rating.setRating(rating);
 
                 String name = obj.getString("wine_name");
