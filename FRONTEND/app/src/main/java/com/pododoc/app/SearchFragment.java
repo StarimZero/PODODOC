@@ -2,9 +2,12 @@ package com.pododoc.app;
 
 import static com.pododoc.app.RemoteService.BASE_URL;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -99,6 +102,21 @@ public class SearchFragment extends Fragment {
         public void onBindViewHolder(@NonNull WineAdapter.ViewHolder holder, int position) {
             try {
                 JSONObject obj=array.getJSONObject(position);
+
+                WineVO wineVO = new WineVO();
+                wineVO.setWineImage(obj.getString("wine_image"));
+                wineVO.setIndex(obj.getInt("index"));
+                wineVO.setWineRating(Float.parseFloat(obj.getString("wine_rating")));
+                wineVO.setWineCountry(obj.getString("wine_country"));
+                wineVO.setWineType(obj.getString("wine_type"));
+                wineVO.setWineName(obj.getString("wine_name"));
+                wineVO.setWineWinery(obj.getString("wine_winery"));
+                wineVO.setWineRegion(obj.getString("wine_region"));
+                wineVO.setWinePrice(obj.optString("wine_price", ""));
+                wineVO.setFlavor1(obj.optString("flavor1", ""));
+                wineVO.setFlavor2(obj.optString("flavor2", ""));
+                wineVO.setFlavor3(obj.optString("flavor3", ""));
+
                 String image=obj.getString("wine_image");
                 int index = obj.getInt("index");
                 Picasso.with(getActivity()).load(image).into(holder.image);
@@ -196,6 +214,15 @@ public class SearchFragment extends Fragment {
                 }
                 holder.ImageView.setImageResource(flagImage);
 
+                holder.card.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getActivity(), ReadActivity.class);
+                        intent.putExtra("wineVO", wineVO);
+                        startActivity(intent);
+                    }
+                });
+
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
@@ -210,9 +237,11 @@ public class SearchFragment extends Fragment {
             ImageView image, ImageView ;
             TextView name, type, country, price, index,region,taste,winery,point;
             RatingBar rating;
+            CardView card;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
+                card= itemView.findViewById(R.id.card);
                 ImageView = itemView.findViewById(R.id.flag);
                 image = itemView.findViewById(R.id.image);
                 name = itemView.findViewById(R.id.name);
