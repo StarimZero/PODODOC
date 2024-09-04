@@ -15,7 +15,7 @@ def wine():
     start = (page-1) * 10
     end = page *10 
 
-    df = pd.read_csv('data/WineInfo_Red_detail.csv')
+    df = pd.read_csv('data/Clean_Combined_Wine_Data.csv')
     df['rating'] = 3.4
     total = len(df)
 
