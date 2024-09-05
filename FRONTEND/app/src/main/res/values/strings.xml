@@ -45,14 +45,34 @@
         <item>unitedstates</item>
     </string-array>
 
-    <array name="images">
-        <item>@drawable/argentina</item>
-        <item>@drawable/australia</item>
-        <item>@drawable/austria</item>
+    <array name="colors">
+        <item>@color/earthy</item>
+        <item>@color/blackfruit</item>
+        <item>@color/redfruit</item>
+        <item>@color/oaky</item>
+        <item>@color/spices</item>
+        <item>@color/driedfruit</item>
+        <item>@color/yeasty</item>
+        <item>@color/citrus</item>
+        <item>@color/floral</item>
+        <item>@color/treefruit</item>
+        <item>@color/vegetal</item>
+        <item>@color/tropical</item>
+        <item>@color/ageing</item>
     </array>
     <string-array name="flavors">
-        <item>argentina</item>
-        <item>australia</item>
-        <item>austria</item>
+        <item>earthy</item>
+        <item>blackfruit</item>
+        <item>redfruit</item>
+        <item>oaky</item>
+        <item>spices</item>
+        <item>driedfruit</item>
+        <item>yeasty</item>
+        <item>citrus</item>
+        <item>floral</item>
+        <item>treefruit</item>
+        <item>vegetal</item>
+        <item>tropical</item>
+        <item>ageing</item>
     </string-array>
 </resources>
