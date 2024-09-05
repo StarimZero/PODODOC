@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="earthy">#7B5A4E</color>
+    <color name="blackfruit">#3B3B3B</color>
+    <color name="redfruit">#C8102E</color>
+    <color name="oaky">#8c5433</color>
+    <color name="spices">#C15C5C</color>
+    <color name="driedfruit">#8B5B29</color>
+    <color name="yeasty">#D0C7B0</color>
+    <color name="citrus">#F9A825</color>
+    <color name="floral">#F5A9B8</color>
+    <color name="treefruit">#F1C40F</color>
+    <color name="vegetal">#4B9F4D</color>
+    <color name="tropical">#FF6F00</color>
+    <color name="ageing">#BFAE6A</color>
+    <color name="default_background_color">#E0E0E0</color> <!-- Light gray color -->
 </resources>

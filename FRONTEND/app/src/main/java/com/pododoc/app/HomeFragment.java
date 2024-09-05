@@ -144,21 +144,6 @@ public class HomeFragment extends Fragment {
             JSONArray dataArray = isRedWine ? redArray : whiteArray;
             try {
                 JSONObject obj = dataArray.getJSONObject(position);
-
-                WineVO wineVO = new WineVO();
-                wineVO.setWineImage(obj.getString("wine_image"));
-                wineVO.setIndex(obj.getInt("index"));
-                wineVO.setWineRating((float) obj.getDouble("wine_rating"));
-                wineVO.setWineCountry(obj.getString("wine_country"));
-                wineVO.setWineType(obj.getString("wine_type"));
-                wineVO.setWineName(obj.getString("wine_name"));
-                wineVO.setWineWinery(obj.getString("wine_winery"));
-                wineVO.setWineRegion(obj.getString("wine_region"));
-                wineVO.setWinePrice(obj.optString("wine_price", ""));
-                wineVO.setFlavor1(obj.optString("flavor1", ""));
-                wineVO.setFlavor2(obj.optString("flavor2", ""));
-                wineVO.setFlavor3(obj.optString("flavor3", ""));
-
                 String image = obj.getString("wine_image");
                 int index = obj.getInt("index");
                 Picasso.with(getActivity()).load(image).into(holder.image);
@@ -190,6 +175,7 @@ public class HomeFragment extends Fragment {
                 } else {
                     holder.ImageView.setImageResource(R.drawable.flag); // 기본 이미지
                 }
+                icons.recycle();
                 holder.card.setOnClickListener(v -> {
                     Intent intent = new Intent(getActivity(), ReadActivity.class);
                     intent.putExtra("index", index);
