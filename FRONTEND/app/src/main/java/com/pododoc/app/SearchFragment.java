@@ -3,9 +3,9 @@ package com.pododoc.app;
 import static com.pododoc.app.RemoteService.BASE_URL;
 
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
@@ -28,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -103,20 +104,6 @@ public class SearchFragment extends Fragment {
             try {
                 JSONObject obj=array.getJSONObject(position);
 
-                WineVO wineVO = new WineVO();
-                wineVO.setWineImage(obj.getString("wine_image"));
-                wineVO.setIndex(obj.getInt("index"));
-                wineVO.setWineRating(Float.parseFloat(obj.getString("wine_rating")));
-                wineVO.setWineCountry(obj.getString("wine_country"));
-                wineVO.setWineType(obj.getString("wine_type"));
-                wineVO.setWineName(obj.getString("wine_name"));
-                wineVO.setWineWinery(obj.getString("wine_winery"));
-                wineVO.setWineRegion(obj.getString("wine_region"));
-                wineVO.setWinePrice(obj.optString("wine_price", ""));
-                wineVO.setFlavor1(obj.optString("flavor1", ""));
-                wineVO.setFlavor2(obj.optString("flavor2", ""));
-                wineVO.setFlavor3(obj.optString("flavor3", ""));
-
                 String image=obj.getString("wine_image");
                 int index = obj.getInt("index");
                 Picasso.with(getActivity()).load(image).into(holder.image);
@@ -152,73 +139,21 @@ public class SearchFragment extends Fragment {
                 holder.taste.setText(taste);
 
                 String strCountry= country.toLowerCase().replace(" ", "");
-                int flagImage;
-                switch (strCountry) {
-                    case "argentina":
-                        flagImage = R.drawable.argentina;
-                        break;
-                    case "australia":
-                        flagImage = R.drawable.australia;
-                        break;
-                    case "austria":
-                        flagImage = R.drawable.austria;
-                        break;
-                    case "canada":
-                        flagImage = R.drawable.canada;
-                        break;
-                    case "chile":
-                        flagImage = R.drawable.chile;
-                        break;
-                    case "france":
-                        flagImage = R.drawable.france;
-                        break;
-                    case "georgia":
-                        flagImage = R.drawable.georgia;
-                        break;
-                    case "germany":
-                        flagImage = R.drawable.germany;
-                        break;
-                    case "hungary":
-                        flagImage = R.drawable.hungary;
-                        break;
-                    case "israel":
-                        flagImage = R.drawable.israel;
-                        break;
-                    case "italy":
-                        flagImage = R.drawable.italy;
-                        break;
-                    case "newzealnd":
-                        flagImage = R.drawable.newzealnd;
-                        break;
-                    case "portugal":
-                        flagImage = R.drawable.portugal;
-                        break;
-                    case "romania":
-                        flagImage = R.drawable.romania;
-                        break;
-                    case "southafrica":
-                        flagImage = R.drawable.southafrica;
-                        break;
-                    case "spain":
-                        flagImage = R.drawable.spain;
-                        break;
-                    case "switzerland":
-                        flagImage = R.drawable.switzerland;
-                        break;
-                    case "unitedstates":
-                        flagImage = R.drawable.unitedstates;
-                        break;
-                    default:
-                        flagImage = R.drawable.flag; // 기본 이미지
-                        break;
+
+                TypedArray icons= getResources().obtainTypedArray(R.array.flags);
+                String[] countries = getResources().getStringArray(R.array.countries);
+                int flagIndex = Arrays.asList(countries).indexOf(strCountry);
+                if (flagIndex >= 0) {
+                    holder.ImageView.setImageDrawable(icons.getDrawable(flagIndex));
+                } else {
+                    holder.ImageView.setImageResource(R.drawable.flag); // 기본 이미지
                 }
-                holder.ImageView.setImageResource(flagImage);
 
                 holder.card.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Intent intent = new Intent(getActivity(), ReadActivity.class);
-                        intent.putExtra("wineVO", wineVO);
+                        intent.putExtra("index", index);
                         startActivity(intent);
                     }
                 });
