@@ -1,6 +1,7 @@
 package com.pododoc.app;
 
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -20,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import retrofit2.Call;
@@ -180,71 +182,17 @@ public class HomeFragment extends Fragment {
                 holder.taste.setText(taste);
 
                 String strCountry = obj.getString("wine_country").toLowerCase().replace(" ", "");
-                int flagImage;
-                switch (strCountry) {
-                    case "argentina":
-                        flagImage = R.drawable.argentina;
-                        break;
-                    case "australia":
-                        flagImage = R.drawable.australia;
-                        break;
-                    case "austria":
-                        flagImage = R.drawable.austria;
-                        break;
-                    case "canada":
-                        flagImage = R.drawable.canada;
-                        break;
-                    case "chile":
-                        flagImage = R.drawable.chile;
-                        break;
-                    case "france":
-                        flagImage = R.drawable.france;
-                        break;
-                    case "georgia":
-                        flagImage = R.drawable.georgia;
-                        break;
-                    case "germany":
-                        flagImage = R.drawable.germany;
-                        break;
-                    case "hungary":
-                        flagImage = R.drawable.hungary;
-                        break;
-                    case "israel":
-                        flagImage = R.drawable.israel;
-                        break;
-                    case "italy":
-                        flagImage = R.drawable.italy;
-                        break;
-                    case "newzealnd":
-                        flagImage = R.drawable.newzealand;
-                        break;
-                    case "portugal":
-                        flagImage = R.drawable.portugal;
-                        break;
-                    case "romania":
-                        flagImage = R.drawable.romania;
-                        break;
-                    case "southafrica":
-                        flagImage = R.drawable.southafrica;
-                        break;
-                    case "spain":
-                        flagImage = R.drawable.spain;
-                        break;
-                    case "switzerland":
-                        flagImage = R.drawable.switzerland;
-                        break;
-                    case "unitedstates":
-                        flagImage = R.drawable.unitedstates;
-                        break;
-                    default:
-                        flagImage = R.drawable.flag; // 기본 이미지
-                        break;
+                TypedArray icons= getResources().obtainTypedArray(R.array.flags);
+                String[] countries = getResources().getStringArray(R.array.countries);
+                int flagIndex = Arrays.asList(countries).indexOf(strCountry);
+                if (flagIndex >= 0) {
+                    holder.ImageView.setImageDrawable(icons.getDrawable(flagIndex));
+                } else {
+                    holder.ImageView.setImageResource(R.drawable.flag); // 기본 이미지
                 }
-                holder.ImageView.setImageResource(flagImage);
-
                 holder.card.setOnClickListener(v -> {
                     Intent intent = new Intent(getActivity(), ReadActivity.class);
-                    intent.putExtra("wineVO", wineVO);
+                    intent.putExtra("index", index);
                     startActivity(intent);
                 });
 
