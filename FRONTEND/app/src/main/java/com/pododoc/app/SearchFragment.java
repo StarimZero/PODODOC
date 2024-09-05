@@ -5,21 +5,23 @@ import static com.pododoc.app.RemoteService.BASE_URL;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RatingBar;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -46,46 +48,89 @@ public class SearchFragment extends Fragment {
     JSONArray array = new JSONArray();
     WineAdapter adapter = new WineAdapter();
 
+    LinearLayout linearLayout;  // LinearLayout을 추가
+    ImageView searchButton;      // 검색 버튼을 추가
+    private EditText searchInput;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view=inflater.inflate(R.layout.fragment_search, container, false);
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
+
+        // Retrofit 초기화
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        remoteService=retrofit.create(RemoteService.class);
-        getList();
+        remoteService = retrofit.create(RemoteService.class);
 
-        RecyclerView list=view.findViewById(R.id.list);
+        // LinearLayout 초기화 및 클릭 리스너 설정
+        linearLayout = view.findViewById(R.id.linear);
+        searchButton = view.findViewById(R.id.btnSearch);
+        searchInput = view.findViewById(R.id.search);
+
+
+
+        linearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SearchPageActivity.class);
+                startActivity(intent);
+            }
+        });
+        // 검색 버튼 클릭 시 SearchPageActivity로 이동
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SearchPageActivity.class);
+                startActivity(intent);
+            }
+        });
+        // EditText의 키를 눌렀을 때도 SearchPageActivity로 이동
+        searchInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SearchPageActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // RecyclerView 설정
+        RecyclerView list = view.findViewById(R.id.list);
         list.setAdapter(adapter);
-        StaggeredGridLayoutManager manager=
+        StaggeredGridLayoutManager manager =
                 new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
         list.setLayoutManager(manager);
+
+        // 데이터 가져오기
+        getList();
+
         return view;
     }//onCreateView
 
-    public void getList(){
-        Call<HashMap<String,Object>> call=remoteService.list(page);
+    public void getList() {
+        Call<HashMap<String, Object>> call = remoteService.list(page);
         call.enqueue(new Callback<HashMap<String, Object>>() {
             @Override
             public void onResponse(Call<HashMap<String, Object>> call, Response<HashMap<String, Object>> response) {
-                JSONObject object=new JSONObject(response.body());
-                try {
-                    total = object.getInt("total");
-                    array = object.getJSONArray("list");
-                    Log.i("total", total + "");
-                    Log.i("length", array.length() + "");
-                    adapter.notifyDataSetChanged();
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                if (response.body() != null) {
+                    try {
+                        // 응답 처리
+                        JSONObject object = new JSONObject(response.body());
+                        total = object.getInt("total");
+                        array = object.getJSONArray("list");
+                        Log.i("total", total + "");
+                        Log.i("length", array.length() + "");
+                        adapter.notifyDataSetChanged();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<HashMap<String, Object>> call, Throwable t) {
-
+                t.printStackTrace();
             }
         });
     }//getList()
@@ -102,28 +147,28 @@ public class SearchFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull WineAdapter.ViewHolder holder, int position) {
             try {
-                JSONObject obj=array.getJSONObject(position);
+                JSONObject obj = array.getJSONObject(position);
 
-                String image=obj.getString("wine_image");
+                String image = obj.getString("wine_image");
                 int index = obj.getInt("index");
                 Picasso.with(getActivity()).load(image).into(holder.image);
                 holder.index.setText(String.valueOf(index));
-                float rating=Float.parseFloat(obj.getString("wine_rating"));
+                float rating = Float.parseFloat(obj.getString("wine_rating"));
                 holder.rating.setRating(rating);
-                String country=obj.getString("wine_country");
+                String country = obj.getString("wine_country");
                 holder.country.setText(country);
-                String type=obj.getString("wine_type");
+                String type = obj.getString("wine_type");
                 holder.type.setText(type);
-                String name=obj.getString("wine_name");
+                String name = obj.getString("wine_name");
                 holder.name.setText(name);
-                String winery=obj.getString("wine_winery");
+                String winery = obj.getString("wine_winery");
                 holder.winery.setText(winery);
-                String region=obj.getString("wine_region");
-                holder.region.setText(region+" "+"/");
-                holder.point.setText("("+obj.getString("wine_rating")+")");
+                String region = obj.getString("wine_region");
+                holder.region.setText(region + " /");
+                holder.point.setText("(" + obj.getString("wine_rating") + ")");
 
                 String price = obj.optString("wine_price", "");
-                holder.price.setText(price+"원");
+                holder.price.setText(price + "원");
                 // 맛 설정: flavor1, flavor2, flavor3을 리스트로 받아서 하나의 문자열로 합치기
                 String flavor1 = obj.optString("flavor1", "");
                 String flavor2 = obj.optString("flavor2", "");
@@ -138,9 +183,9 @@ public class SearchFragment extends Fragment {
                 String taste = TextUtils.join(", ", flavors);
                 holder.taste.setText(taste);
 
-                String strCountry= country.toLowerCase().replace(" ", "");
+                String strCountry = country.toLowerCase().replace(" ", "");
 
-                TypedArray icons= getResources().obtainTypedArray(R.array.flags);
+                TypedArray icons = getResources().obtainTypedArray(R.array.flags);
                 String[] countries = getResources().getStringArray(R.array.countries);
                 int flagIndex = Arrays.asList(countries).indexOf(strCountry);
                 if (flagIndex >= 0) {
@@ -159,7 +204,7 @@ public class SearchFragment extends Fragment {
                 });
 
             } catch (JSONException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
 
@@ -169,14 +214,14 @@ public class SearchFragment extends Fragment {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            ImageView image, ImageView ;
-            TextView name, type, country, price, index,region,taste,winery,point;
+            ImageView image, ImageView;
+            TextView name, type, country, price, index, region, taste, winery, point;
             RatingBar rating;
             CardView card;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
-                card= itemView.findViewById(R.id.card);
+                card = itemView.findViewById(R.id.card);
                 ImageView = itemView.findViewById(R.id.flag);
                 image = itemView.findViewById(R.id.image);
                 name = itemView.findViewById(R.id.name);
@@ -185,11 +230,10 @@ public class SearchFragment extends Fragment {
                 rating = itemView.findViewById(R.id.rating);
                 index = itemView.findViewById(R.id.index);
                 taste = itemView.findViewById(R.id.taste);
-                region= itemView.findViewById(R.id.region);
+                region = itemView.findViewById(R.id.region);
                 price = itemView.findViewById(R.id.price);
-                winery= itemView.findViewById(R.id.winery);
-                point=itemView.findViewById(R.id.point);
-
+                winery = itemView.findViewById(R.id.winery);
+                point = itemView.findViewById(R.id.point);
             }
         }
     }
