@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, json, Response
 import pandas as pd
 from mainPage import get_basic_red_wines, get_basic_white_wines
 from readPage import get_data, chart
+from search import search_wine
 
 app = Flask(__name__)
 
@@ -63,6 +64,20 @@ def read(index):
 def get_image(index):
     buf = chart(index)
     return Response(buf, mimetype='image/png')
+
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query', '')
+    page = int(request.args.get('page', 1))
+    size = int(request.args.get('size', 10))
+    
+    if not query:
+        return jsonify({'error': '검색어를 입력하세요'}),
+    
+    # 검색과 페이지네이션
+    results = search_wine(query, page, size)
+    
+    return jsonify(results)
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True, host='192.168.0.11')
