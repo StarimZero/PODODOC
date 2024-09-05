@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify, json
+from flask import Flask, request, jsonify, json, Response
 import pandas as pd
 from mainPage import get_basic_red_wines, get_basic_white_wines
+from readPage import get_data, chart
 
 app = Flask(__name__)
 
@@ -53,8 +54,18 @@ def basicwhite():
         # 에러 발생 시 JSON 응답으로 에러 메시지를 반환합니다
         return jsonify({"error": str(e)}), 500
     
-    
+@app.route('/wine/<int:index>')
+def read(index):
+    data= get_data(index)
+    return jsonify(data)
 
+@app.route('/image/<int:index>')
+def get_image(index):
+    buf = chart(index)
+    return Response(buf, mimetype='image/png')
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True, host='192.168.0.11')
+        
+# if __name__ == '__main__':
+#     app.run(port=5000, debug=True, host='192.168.0.238')

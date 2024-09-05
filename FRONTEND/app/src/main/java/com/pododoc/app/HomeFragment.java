@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -217,7 +216,7 @@ public class HomeFragment extends Fragment {
                         flagImage = R.drawable.italy;
                         break;
                     case "newzealnd":
-                        flagImage = R.drawable.newzealnd;
+                        flagImage = R.drawable.newzealand;
                         break;
                     case "portugal":
                         flagImage = R.drawable.portugal;

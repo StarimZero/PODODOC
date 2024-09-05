@@ -2,4 +2,57 @@
     <string name="app_name">PODODOC</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <array name="flags">
+        <item>@drawable/argentina</item>
+        <item>@drawable/australia</item>
+        <item>@drawable/austria</item>
+        <item>@drawable/canada</item>
+        <item>@drawable/chile</item>
+        <item>@drawable/france</item>
+        <item>@drawable/georgia</item>
+        <item>@drawable/germany</item>
+        <item>@drawable/hungary</item>
+        <item>@drawable/israel</item>
+        <item>@drawable/italy</item>
+        <item>@drawable/newzealand</item>
+        <item>@drawable/portugal</item>
+        <item>@drawable/romania</item>
+        <item>@drawable/southafrica</item>
+        <item>@drawable/spain</item>
+        <item>@drawable/switzerland</item>
+        <item>@drawable/unitedstates</item>
+    </array>
+
+    <string-array name="countries">
+        <item>argentina</item>
+        <item>australia</item>
+        <item>austria</item>
+        <item>canada</item>
+        <item>chile</item>
+        <item>france</item>
+        <item>georgia</item>
+        <item>germany</item>
+        <item>hungary</item>
+        <item>israel</item>
+        <item>italy</item>
+        <item>newzealand</item>
+        <item>portugal</item>
+        <item>romania</item>
+        <item>southafrica</item>
+        <item>spain</item>
+        <item>switzerland</item>
+        <item>unitedstates</item>
+    </string-array>
+
+    <array name="images">
+        <item>@drawable/argentina</item>
+        <item>@drawable/australia</item>
+        <item>@drawable/austria</item>
+    </array>
+    <string-array name="flavors">
+        <item>argentina</item>
+        <item>australia</item>
+        <item>austria</item>
+    </string-array>
 </resources>
