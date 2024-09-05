@@ -1,68 +1,43 @@
 package com.pododoc.app;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    FirebaseUser user = mAuth.getCurrentUser();
-    ArrayList<Fragment> fragments=new ArrayList<Fragment>();
-    DrawerLayout drawerLayout;
-    LinearLayout drawerView;
-    TabLayout tab;
-    ViewPager pager;
+    private ArrayList<Fragment> fragments;
+    private TabLayout tab;
+    private ViewPager pager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().setTitle("Pick for you");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // Initialize fragments
+        fragments = new ArrayList<>();
         fragments.add(new HomeFragment());
         fragments.add(new SearchFragment());
         fragments.add(new WishList());
         fragments.add(new MypageFragment());
 
+        // Initialize TabLayout and ViewPager
+        tab = findViewById(R.id.tab);
+        pager = findViewById(R.id.pager);
 
-        TabLayout tab = findViewById(R.id.tab);
-        tab.addTab(tab.newTab().setText(""));
-        tab.getTabAt(0).setIcon(R.drawable.star);
-
-        tab.addTab(tab.newTab().setText(""));
-        tab.getTabAt(1).setIcon(R.drawable.search);
-
-        tab.addTab(tab.newTab().setText(""));
-        tab.getTabAt(2).setIcon(R.drawable.wishlist);
-
-        tab.addTab(tab.newTab().setText(""));
-        tab.getTabAt(3).setIcon(R.drawable.mypage);
-
-        PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager());
-        ViewPager pager = findViewById(R.id.pager);
-        pager.setAdapter(adapter);
+        setupTabs();
+        setupViewPager();
 
         tab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -72,24 +47,69 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
+                // No action needed
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
+                // No action needed
             }
         });
 
+        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                // Update title based on current fragment
+                updateTitle(position);
+            }
+        });
 
-        pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tab));
-    }//oncreate
+        // Set initial title
+        updateTitle(0);
 
+        // Set Activity title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
 
-    class PagerAdapter extends FragmentPagerAdapter{
+    private void setupTabs() {
+        tab.addTab(tab.newTab().setIcon(R.drawable.star));
+        tab.addTab(tab.newTab().setIcon(R.drawable.search));
+        tab.addTab(tab.newTab().setIcon(R.drawable.wishlist));
+        tab.addTab(tab.newTab().setIcon(R.drawable.mypage));
+    }
 
-        public PagerAdapter(@NonNull FragmentManager fm) {
-            super(fm);
+    private void setupViewPager() {
+        PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        pager.setAdapter(adapter);
+    }
+
+    private void updateTitle(int position) {
+        String title = "";
+        switch (position) {
+            case 0:
+                title = "Home";
+                break;
+            case 1:
+                title = "Search";
+                break;
+            case 2:
+                title = "Wish List";
+                break;
+            case 3:
+                title = "My Page";
+                break;
+        }
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(title);
+        }
+    }
+
+    class PagerAdapter extends FragmentStatePagerAdapter {
+
+        public PagerAdapter(@NonNull FragmentManager fm, int behavior) {
+            super(fm, behavior);
         }
 
         @NonNull
@@ -108,8 +128,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
-
-}//activitiy
+}

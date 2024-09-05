@@ -33,6 +33,8 @@ android {
 }
 
 dependencies {
+    implementation ("com.github.bumptech.glide:glide:4.15.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.0")
     implementation("com.squareup.picasso:picasso:2.5.2")
     implementation("com.squareup.retrofit2:retrofit:2.2.0")
     implementation("com.squareup.retrofit2:converter-gson:2.2.0")
@@ -43,6 +45,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
