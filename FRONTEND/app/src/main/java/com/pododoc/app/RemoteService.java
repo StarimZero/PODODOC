@@ -25,4 +25,8 @@ public interface RemoteService {
 
     @GET("/image/{index}")
     Call<ResponseBody> get_image(@Path("index") int index);
+
+    @GET("search")
+    Call<HashMap<String, Object>> search(@Query("query") String query, @Query("page") int page, @Query("size") int size);
+
 }
