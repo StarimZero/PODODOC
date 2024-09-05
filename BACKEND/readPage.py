@@ -8,7 +8,7 @@ import io
 from PIL import Image
 
 def get_data(index):
-    df = pd.read_csv('data/Clean_Red_data.csv')
+    df = pd.read_csv('data/Combined_Wine_Data.csv')
     filt= df['index'] == index
     df=df[filt]
 
@@ -18,7 +18,7 @@ def get_data(index):
     return data[0]
 
 def chart(index):
-    df = pd.read_csv('data/Clean_Red_data.csv')
+    df = pd.read_csv('data/Combined_Wine_Data.csv')
     categories = ['body', 'texture', 'sweetness', 'acidity']
     values = [df[df['index'] == index][col].values[0] for col in categories]
     fig, ax = plt.subplots(figsize=(10, 6))

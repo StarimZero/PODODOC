@@ -53,7 +53,6 @@ public class ReadActivity extends AppCompatActivity {
         image = findViewById(R.id.image);
         imgChart = findViewById(R.id.chart);
         name = findViewById(R.id.name);
-        txtIndex = findViewById(R.id.index);
         ratingPoint = findViewById(R.id.ratingPoint);
         rating = findViewById(R.id.rating);
         flavor1 = findViewById(R.id.flavor1);
