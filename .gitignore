@@ -305,5 +305,8 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+kosmo-96bbe-60906db745e9.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+
+google-services.*

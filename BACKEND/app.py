@@ -79,6 +79,25 @@ def search():
     
     return jsonify(results)
 
+@app.route('/api/receive-email', methods=['POST'])
+def receive_email():
+    # POST 요청으로부터 JSON 데이터 추출
+    data = request.get_json()
+    
+    if 'email' not in data:
+        # 이메일 필드가 없는 경우 에러 응답 반환
+        return jsonify({'error': 'No email field in request'}), 400
+    
+    email = data['email']
+    
+    # 이메일을 파일에 저장
+    with open('received_email.txt', 'w') as file:
+        file.write(email)
+    
+    # 성공 응답 반환
+    return jsonify({'status': 'success', 'email': email}), 200
+
+#이메일을 받아서 
 if __name__ == '__main__':
     app.run(port=5000, debug=True, host='192.168.0.11')
         
