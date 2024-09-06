@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         fragments = new ArrayList<>();
         fragments.add(new HomeFragment());
         fragments.add(new SearchFragment());
-        fragments.add(new WishList());
+        fragments.add(new WishListFragment());
         fragments.add(new MypageFragment());
 
         // Initialize TabLayout and ViewPager
@@ -89,16 +89,16 @@ public class MainActivity extends AppCompatActivity {
         String title = "";
         switch (position) {
             case 0:
-                title = "Home";
+                title = "당신을 위한 와인추천";
                 break;
             case 1:
-                title = "Search";
+                title = "와인찾기";
                 break;
             case 2:
-                title = "Wish List";
+                title = "나의와인리스트";
                 break;
             case 3:
-                title = "My Page";
+                title = "내정보";
                 break;
         }
         if (getSupportActionBar() != null) {

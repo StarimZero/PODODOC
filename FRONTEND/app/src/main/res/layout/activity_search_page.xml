@@ -12,13 +12,6 @@
         android:layout_height="wrap_content"
         android:hint="검색어를 입력하세요" />
 
-    <ImageView
-        android:id="@+id/search_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/search"
-        android:layout_toEndOf="@id/search_input"
-        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_results"
