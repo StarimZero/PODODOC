@@ -20,7 +20,13 @@ def get_data(index):
 def chart(index):
     df = pd.read_csv('data/Combined_Wine_Data.csv')
     categories = ['body', 'texture', 'sweetness', 'acidity']
-    values = [df[df['index'] == index][col].values[0] for col in categories]
+
+    # 선택한 인덱스의 데이터를 가져옴
+    row = df[df['index'] == index]
+    # null이 아닌 값들만 남기고 해당 카테고리들을 필터링
+    categories_filtered = [col for col in categories if pd.notnull(row[col].values[0])]
+    values = [row[col].values[0] for col in categories_filtered]
+
     fig, ax = plt.subplots(figsize=(10, 6))
 
     # x축 범위와 레이블 설정
@@ -43,8 +49,8 @@ def chart(index):
         ax.plot(value, i, 'o', markersize=40, color=colors[category], label=f'{category}: {value:.2f}')
 
      # 레이블과 격자 설정
-    ax.set_yticks(np.arange(len(categories)))
-    ax.set_yticklabels(categories, fontsize=40, color='white')  # 글자 크기와 색상 설정
+    ax.set_yticks(np.arange(len(categories_filtered)))
+    ax.set_yticklabels(categories_filtered, fontsize=40, color='white')  # 글자 크기와 색상 설정
     ax.grid(False)
     ax.set_xticks([])
     ax.set_xlabel('')
