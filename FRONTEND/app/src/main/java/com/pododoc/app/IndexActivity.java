@@ -33,6 +33,6 @@ public class IndexActivity extends AppCompatActivity {
                 // 현재 IndexActivity 종료
                 finish();
             }
-        }, 500); // 4초가적당
+        }, 4500); // 4초가적당
     }
 }

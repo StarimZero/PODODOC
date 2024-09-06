@@ -15,6 +15,10 @@
         android:theme="@style/Theme.Material3.Dark"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+         <activity
+            android:name=".ReviewReadActivity"
+            android:exported="false" />
+        <activity
         <activity
             android:name=".ReviewInsertActivity"
             android:exported="false" />
