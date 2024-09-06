@@ -51,7 +51,7 @@ public class ReadActivity extends AppCompatActivity {
     FirebaseAuth mAuth=FirebaseAuth.getInstance();
     FirebaseUser user=mAuth.getCurrentUser();
     FirebaseDatabase db = FirebaseDatabase.getInstance();
-
+    HashMap<String, Object> vo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -96,7 +96,7 @@ public class ReadActivity extends AppCompatActivity {
         call.enqueue(new Callback<HashMap<String, Object>>() {
             @Override
             public void onResponse(Call<HashMap<String, Object>> call, Response<HashMap<String, Object>> response) {
-                HashMap<String, Object> vo = response.body();
+                vo = response.body();
                 Log.i("name", vo.get("wine_name").toString());
                 name.setText(vo.get("wine_name").toString());
                 Picasso.with(ReadActivity.this).load(vo.get("wine_image").toString()).into(image);
@@ -166,6 +166,16 @@ public class ReadActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+            }
+        });
+
+        findViewById(R.id.write).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ReadActivity.this, ReviewInsertActivity.class);
+                intent.putExtra("index",index);
+                intent.putExtra("url",vo.get("wine_image").toString());
+                startActivity(intent);
             }
         });
     }
