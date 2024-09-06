@@ -12,7 +12,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,13 +27,20 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -45,13 +55,17 @@ public class ReadActivity extends AppCompatActivity {
     Retrofit retrofit;
     RemoteService service;
     int index = 0;
-    ImageView image, imgChart, flag, heart;
+    ImageView image, imgChart, flag, heart, reviewPhoto;
     TextView name, ratingPoint, predictPoint, region, price, flavor1, flavor2, flavor3, winery, country;
     RatingBar rating;
     FirebaseAuth mAuth=FirebaseAuth.getInstance();
     FirebaseUser user=mAuth.getCurrentUser();
     FirebaseDatabase db = FirebaseDatabase.getInstance();
+    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    ArrayList<ReviewVO> array= new ArrayList();
     HashMap<String, Object> vo;
+    ReviewAdapter adapter = new ReviewAdapter();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -178,6 +192,10 @@ public class ReadActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        getReviewList();
+        ListView list =findViewById(R.id.list);
+        list.setAdapter(adapter);
     }
 
     @Override
@@ -186,5 +204,97 @@ public class ReadActivity extends AppCompatActivity {
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+    //리뷰목록
+    public void getReviewList(){
+        firestore.collection("review")
+                .whereEqualTo("index",index)
+                .orderBy("date", Query.Direction.DESCENDING)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (QueryDocumentSnapshot doc:task.getResult()){
+                            ReviewVO vo = new ReviewVO();
+                            vo.setId(doc.getId());
+                            // photo 필드 null 체크
+                           if(doc.getData().get("photo")==null){
+                               vo.setPhoto("");
+                           }else {
+                               vo.setPhoto(doc.getData().get("photo").toString());
+                           }
+                            vo.setIndex(Integer.parseInt(doc.getData().get("index").toString()));
+                            vo.setEmail(doc.getData().get("email").toString());
+                            vo.setContents(doc.getData().get("contents").toString());
+                            vo.setDate(doc.getData().get("date").toString());
+                            float rating= Float.parseFloat(doc.getData().get("rating").toString());
+                            vo.setRating(rating);
+                            Log.i("vo",vo.toString());
+                            array.add(vo);
+                        }
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+    }
+
+    //adapter
+    class ReviewAdapter extends BaseAdapter{
+
+        @Override
+        public int getCount() {
+            return array.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            view = getLayoutInflater().inflate(R.layout.item_review,viewGroup,false);
+            TextView email,contents,date;
+            RatingBar ratingBar;
+            ReviewVO vo= array.get(i);
+
+            email= view.findViewById(R.id.email);
+            email.setText(vo.getEmail());
+
+            contents=view.findViewById(R.id.contents);
+            contents.setText(vo.getContents());
+
+            date= view.findViewById(R.id.date);
+            date.setText(vo.getDate());
+
+            ratingBar = view.findViewById(R.id.ratingBar);
+            ratingBar.setRating(vo.getRating());
+
+            reviewPhoto = view.findViewById(R.id.reviewPhoto);
+            if(vo.getPhoto().equals("")){
+                reviewPhoto.setImageResource(R.drawable.person);
+            }else {
+                Picasso.with(ReadActivity.this).load(vo.getPhoto()).into(reviewPhoto);
+            }
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(ReadActivity.this, ReviewReadActivity.class);
+                    intent.putExtra("id",vo.getId());
+                    startActivity(intent);
+                }
+            });
+            return view;
+        }
+    }
+    @Override
+    protected void onRestart() {
+        array.clear();
+        getReviewList();
+        super.onRestart();
     }
 }

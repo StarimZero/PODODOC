@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -15,10 +18,12 @@
         android:theme="@style/Theme.Material3.Dark"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-         <activity
-            android:name=".ReviewReadActivity"
+        <activity
+            android:name=".IndexActivity"
             android:exported="false" />
         <activity
+            android:name=".ReviewReadActivity"
+            android:exported="false" />
         <activity
             android:name=".ReviewInsertActivity"
             android:exported="false" />
@@ -26,7 +31,7 @@
             android:name=".SearchPageActivity"
             android:exported="false" />
         <activity
-            android:name=".IndexActivity"
+            android:name=".PermissionActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
