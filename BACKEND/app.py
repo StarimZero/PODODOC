@@ -6,6 +6,8 @@ from search import search_wine
 from reviewView import save_map_to_html
 from readPredict import WinePredictor
 from similar import find_similar_wines_from_name
+from myWine import get_combined_data
+
 
 app = Flask(__name__)
 
@@ -122,6 +124,7 @@ def map():
 
 
 
+
 # Firebase와 CSV 파일 경로 설정
 firebase_key_path = 'C:/pododoc/key/kosmo-96bbe-60906db745e9.json'
 csv_path = 'data/Combined_Wine_Data.csv'
@@ -131,10 +134,7 @@ predictor = WinePredictor(firebase_key_path, csv_path)
 
 @app.route('/predict', methods=['GET'])
 def predict():
-    # 요청 데이터에서 index 추출
     index = request.args.get('index')
-
-    # 로그 추가: 요청 데이터 출력
     print(f"받은 인덱스번호: {index}")
     
     if not index:
@@ -142,34 +142,39 @@ def predict():
     
     try:
         index = int(index)  # index를 정수로 변환
-        
-        # Combined_Wine_Data.csv 파일에서 해당 index에 맞는 데이터 추출
         wine_data = pd.read_csv(csv_path)
         wine_row = wine_data[wine_data['index'] == index]
         
         if wine_row.empty:
             return jsonify({'error': 'Index not found in data'}), 404
         
-        # 와인 데이터에서 속성 추출
         body = wine_row['body'].values[0]
         texture = wine_row['texture'].values[0]
         sweetness = wine_row['sweetness'].values[0]
         flavor1 = wine_row['flavor1'].values[0]
         flavor2 = wine_row['flavor2'].values[0]
         flavor3 = wine_row['flavor3'].values[0]
-        acidity = wine_row['acidity'].values[0]
+        acidity = wine_row['acidity'].values[0] if 'acidity' in wine_row.columns else None
 
-        # 예측 수행
-        score = predictor.predict_wine_score(body, texture, sweetness, acidity, flavor1, flavor2, flavor3)
-
-        # 로그 추가: 예측 결과 출력
-        print(f"예측점수 {index}: {score}")
+        wine_type = wine_row['wine_type'].values[0]
         
-        # 결과 반환
+        if wine_type == 'Red wine':
+            score = predictor.predict_red_wine_score(body, texture, sweetness, acidity, flavor1, flavor2, flavor3)
+        elif wine_type == 'White wine':
+            score = predictor.predict_white_wine_score(body, texture, sweetness, flavor1, flavor2, flavor3)
+        else:
+            return jsonify({'error': 'Unknown wine type'}), 400
+
+        print(f"예측점수 {index}: {score}")
         return jsonify({'predicted_score': score})
     
-    except ValueError:
+    except ValueError as e:
+        print(f"ValueError: {str(e)}")
         return jsonify({'error': 'Invalid index value'}), 400
+    
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
+        return jsonify({'error': 'An unexpected error occurred'}), 500
 
 
 
@@ -182,5 +187,41 @@ def similar(index):
     return jsonify(df_sorted[1:6])
 
 #이메일을 받아서 
+
+
+
+
+
+@app.route('/mywine', methods=['GET'])
+def get_wine_data():
+    try:
+        email = request.args.get('email')
+        if not email:
+            return jsonify({'error': 'No email provided'}), 400
+        
+        # 결합된 데이터 가져오기
+        combined_data = get_combined_data(email)
+        result = combined_data.to_dict(orient='records')
+
+        # NaN 값 처리
+        def replace_nan(val):
+            return None if pd.isna(val) else val
+        
+        result = [{k: replace_nan(v) for k, v in record.items()} for record in result]
+
+        return jsonify({'results': result})
+    except FileNotFoundError:
+        return jsonify({'error': 'received_email.txt file not found'}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     app.run(port=5000, debug=True, host='192.168.0.11')
