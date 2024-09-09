@@ -1,5 +1,7 @@
 package com.pododoc.app;
 
+import org.json.JSONArray;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,4 +40,7 @@ public interface RemoteService {
 
     @GET("similar/{index}")
     Call<List<HashMap<String,Object>>> similar(@Path("index") int index);
+
+    @GET("mywine")
+    Call<HashMap<String, Object>> getMyWine(@Query("email") String email);
 }

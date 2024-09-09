@@ -1,4 +1,3 @@
-
 import pandas as pd
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -17,16 +16,19 @@ class WinePredictor:
         # 데이터 읽기
         self.wine_data = pd.read_csv(csv_path)
         self.red_wine_data = self.wine_data[self.wine_data['wine_type'] == 'Red wine']
+        self.white_wine_data = self.wine_data[self.wine_data['wine_type'] == 'White wine']
         
         # 모델 및 스케일러
-        self.model = None
-        self.scaler = None
+        self.model_red = None
+        self.model_white = None
+        self.scaler_red = None
+        self.scaler_white = None
         self.label_encoders = {}
         
         # 모델 학습
-        self._train_model()
+        self._train_models()
 
-    def _train_model(self):
+    def _train_models(self):
         # Firestore에서 데이터 가져오기
         email = self._read_email()
         data = self._fetch_data_by_email(email)
@@ -47,19 +49,24 @@ class WinePredictor:
         weights = final_data['weight']
         
         # 정규화
-        self.scaler = StandardScaler()
-        features_scaled = self.scaler.fit_transform(features)
+        features_scaled = StandardScaler().fit_transform(features)
         
         # 데이터 분할
         X_train, X_test, y_train, y_test, w_train, w_test = train_test_split(features_scaled, target, weights, test_size=0.2, random_state=42)
         
-        # 모델 정의 및 학습
-        self.model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
-        self.model.fit(X_train, y_train, sample_weight=w_train)
+        # Red wine 모델 정의 및 학습
+        self.model_red = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
+        self.model_red.fit(X_train, y_train, sample_weight=w_train)
+        
+        # White wine 모델 정의 및 학습
+        self.model_white = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
+        self.model_white.fit(X_train, y_train, sample_weight=w_train)
         
         # 모델 평가
-        score = self.model.score(X_test, y_test)
-        print(f"모델 성능 (R^2 score): {score}")
+        score_red = self.model_red.score(X_test, y_test)
+        score_white = self.model_white.score(X_test, y_test)
+        print(f"Red wine 모델 성능 (R^2 score): {score_red}")
+        print(f"White wine 모델 성능 (R^2 score): {score_white}")
 
     def _read_email(self):
         # 이메일 읽기
@@ -127,30 +134,62 @@ class WinePredictor:
             df[col] = le.fit_transform(df[col])
             self.label_encoders[col] = le
 
-    def preprocess_input_data(self, body, texture, sweetness, acidity, flavor1, flavor2, flavor3):
+    def preprocess_input_data(self, body, texture, sweetness, acidity=None, flavor1=None, flavor2=None, flavor3=None):
         # 입력 데이터 전처리
         flavor1_encoded = -1 if flavor1 not in self.label_encoders['flavor1'].classes_ else self.label_encoders['flavor1'].transform([flavor1])[0]
         flavor2_encoded = -1 if flavor2 not in self.label_encoders['flavor2'].classes_ else self.label_encoders['flavor2'].transform([flavor2])[0]
         flavor3_encoded = -1 if flavor3 not in self.label_encoders['flavor3'].classes_ else self.label_encoders['flavor3'].transform([flavor3])[0]
         
+        data = {
+            'body': [body],
+            'texture': [texture],
+            'sweetness': [sweetness],
+            'flavor1': [flavor1_encoded],
+            'flavor2': [flavor2_encoded],
+            'flavor3': [flavor3_encoded]
+        }
+        
+        if acidity is not None:
+            data['acidity'] = [acidity]
+        
+        # 화이트 와인에서 acidity가 없는 경우
         return pd.DataFrame({
             'body': [body],
             'texture': [texture],
             'sweetness': [sweetness],
-            'acidity': [acidity],
+            'acidity': [acidity if acidity is not None else -1],  # Default to -1 if acidity is None
             'flavor1': [flavor1_encoded],
             'flavor2': [flavor2_encoded],
             'flavor3': [flavor3_encoded]
         })
 
-    def predict_wine_score(self, body, texture, sweetness, acidity, flavor1, flavor2, flavor3):
+    def predict_red_wine_score(self, body, texture, sweetness, acidity, flavor1, flavor2, flavor3):
         # 입력 데이터 전처리
         input_data = self.preprocess_input_data(body, texture, sweetness, acidity, flavor1, flavor2, flavor3)
         
         # 데이터 정규화
-        input_data_scaled = self.scaler.transform(input_data)
+        if self.scaler_red:
+            input_data_scaled = self.scaler_red.transform(input_data)
+        else:
+            input_data_scaled = input_data  # No scaling if scaler is not available
         
         # 예측
-        predicted_score = self.model.predict(input_data_scaled)
+        predicted_score = self.model_red.predict(input_data_scaled)
         
         return predicted_score[0]
+
+    def predict_white_wine_score(self, body, texture, sweetness, flavor1, flavor2, flavor3):
+        # 입력 데이터 전처리
+        input_data = self.preprocess_input_data(body, texture, sweetness, None, flavor1, flavor2, flavor3)
+        
+        # 데이터 정규화
+        if self.scaler_white:
+            input_data_scaled = self.scaler_white.transform(input_data)
+        else:
+            input_data_scaled = input_data  # No scaling if scaler is not available
+        
+        # 예측
+        predicted_score = self.model_white.predict(input_data_scaled)
+        
+        return predicted_score[0]
+

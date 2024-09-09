@@ -1,72 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="400dp"
-    android:layout_height="150dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="10dp"
     app:cardCornerRadius="10dp"
     android:backgroundTint="#111"
-    android:id="@+id/list"
-    >
+    android:id="@+id/list">
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:padding="10dp">
+
+        <!-- Photo ImageView -->
         <ImageView
-            android:id="@+id/image"
-            android:layout_width="50dp"
-            android:layout_height="150dp"
+            android:id="@+id/photo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:src="@drawable/ic_launcher_background"
-            android:layout_marginRight="20sp"/>
-        <TextView
-            android:id="@+id/winery"
+            android:scaleType="centerCrop"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="10dp"/>
+
+        <RatingBar
+            android:id="@+id/ratingBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="와이너리"
-            android:layout_toRightOf="@id/image"/>
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:numStars="5"
+            android:stepSize="0.1"
+            android:rating="0"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            style="@style/Widget.AppCompat.RatingBar.Small"/>
+
+        <!-- Rating Score TextView -->
+        <TextView
+            android:id="@+id/ratingScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.0"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"/>
+
+        <!-- Date TextView -->
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date"
+            android:textColor="#aaa"
+            android:textSize="12sp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/ratingBar"/>
+
+        <!-- Wine Name TextView -->
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="와인이름"
-            android:layout_toRightOf="@id/image"
-            android:layout_below="@id/winery"/>
+            android:text="Wine Name"
+            android:textColor="#fff"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_toEndOf="@id/photo"
+            android:layout_marginStart="10dp"/>
 
+        <!-- Winery TextView -->
+        <TextView
+            android:id="@+id/winery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Winery"
+            android:textColor="#ccc"
+            android:textSize="14sp"
+            android:layout_below="@id/name"
+            android:layout_toEndOf="@id/photo"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"/>
+
+        <!-- Grape TextView -->
         <TextView
             android:id="@+id/grape"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="품종"
-            android:layout_toRightOf="@id/image"
-            android:layout_below="@id/name"/>
+            android:text="Grape"
+            android:textColor="#ccc"
+            android:textSize="14sp"
+            android:layout_below="@id/winery"
+            android:layout_toEndOf="@id/photo"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"/>
+
+        <!-- Country and Region Layout -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_below="@id/grape"
-            android:layout_toRightOf="@id/image">
+            android:layout_toEndOf="@id/photo"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp">
 
+            <!-- Flag ImageView -->
             <ImageView
                 android:id="@+id/flag"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_marginEnd="5dp"
-                android:src="@drawable/flag" />
+                android:src="@drawable/flag"/>
 
-            <TextView
-                android:id="@+id/region"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="와인지역" />
-
+            <!-- Country TextView -->
             <TextView
                 android:id="@+id/country"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="와인국가" />
-        </LinearLayout>
+                android:text="Country"
+                android:textColor="#fff"/>
 
+            <!-- Region TextView -->
+            <TextView
+                android:id="@+id/region"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Region"
+                android:textColor="#fff"/>
+        </LinearLayout>
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
