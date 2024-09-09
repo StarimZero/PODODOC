@@ -38,6 +38,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONObject;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,9 +59,9 @@ public class ReadActivity extends AppCompatActivity {
     int index = 0;
     ImageView image, imgChart, flag, heart, reviewPhoto;
     TextView name, ratingPoint, predictPoint, region, price, flavor1, flavor2, flavor3, winery, country;
-    RatingBar rating;
-    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    FirebaseUser user = mAuth.getCurrentUser();
+    RatingBar rating, predictRating;
+    FirebaseAuth mAuth=FirebaseAuth.getInstance();
+    FirebaseUser user=mAuth.getCurrentUser();
     FirebaseDatabase db = FirebaseDatabase.getInstance();
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     ArrayList<ReviewVO> array = new ArrayList();
@@ -94,6 +96,9 @@ public class ReadActivity extends AppCompatActivity {
         flag = findViewById(R.id.flag);
         country = findViewById(R.id.country);
         region = findViewById(R.id.region);
+        predictPoint = findViewById(R.id.predictPoint);
+        predictRating = findViewById(R.id.predictRating);
+
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -221,6 +226,8 @@ public class ReadActivity extends AppCompatActivity {
         });
 
 
+        // 예측 요청
+        predictWineScore(index);
 
         getReviewList();
         RecyclerView list = findViewById(R.id.list);
@@ -413,4 +420,48 @@ public class ReadActivity extends AppCompatActivity {
         getReviewList();
         super.onRestart();
     }
+
+    private void predictWineScore(int index) {
+        Call<ResponseBody> call = service.predict(index);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    try {
+                        // 서버의 응답을 문자열로 변환
+                        String responseBody = response.body().string();
+                        Log.i("Prediction", "Predicted score: " + responseBody);
+                        // 여기에 예측 결과를 처리하는 로직 추가
+
+                        // JSON 객체로 변환
+                        JSONObject jsonObject = new JSONObject(responseBody);
+
+                        // 예측 점수 추출
+                        double predictedScore = jsonObject.optDouble("predicted_score", -1);
+
+                        if (predictedScore != -1) {
+                            // 예측 점수를 화면에 표시
+                            predictPoint.setText(String.format("%.1f", predictedScore));
+                            predictRating.setRating((float) predictedScore); // RatingBar에 점수 설정
+                        } else {
+                            Toast.makeText(ReadActivity.this, "No predicted score found", Toast.LENGTH_SHORT).show();
+                        }
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(ReadActivity.this, "Error parsing prediction result", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(ReadActivity.this, "Error retrieving prediction", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(ReadActivity.this, "Network error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 }
+

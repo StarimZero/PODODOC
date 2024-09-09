@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="300sp"
+    android:layout_width="200sp"
     android:background="#B39DDB"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -8,9 +8,16 @@
     android:id="@+id/drawerView"
     android:layout_gravity="start">
     <TextView
+        android:id="@+id/userEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="홍길동"
         android:textColor="#F5F5F5"
         android:textSize="50sp"/>
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#1e3f7f"
+        android:text="로그아웃"/>
 </LinearLayout>

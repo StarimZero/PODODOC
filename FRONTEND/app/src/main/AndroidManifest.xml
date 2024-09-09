@@ -19,6 +19,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".MywineActivity"
+            android:exported="false" />
+        <activity
             android:name=".IndexActivity"
             android:exported="false" />
         <activity

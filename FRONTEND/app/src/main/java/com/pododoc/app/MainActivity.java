@@ -1,16 +1,25 @@
 package com.pododoc.app;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
@@ -19,6 +28,11 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Fragment> fragments;
     private TabLayout tab;
     private ViewPager pager;
+    TextView userEmail;
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    FirebaseUser user = mAuth.getCurrentUser();
+    Button logoutButton;
+    DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +49,25 @@ public class MainActivity extends AppCompatActivity {
         // Initialize TabLayout and ViewPager
         tab = findViewById(R.id.tab);
         pager = findViewById(R.id.pager);
+
+        userEmail = findViewById(R.id.userEmail);
+        String email = user.getEmail();
+        String userName = email.split("@")[0];
+        userEmail.setText(userName);
+
+        logoutButton = findViewById(R.id.logout);
+        drawerLayout = findViewById(R.id.main);
+
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("MainActivity", "Logout button clicked");
+                mAuth.signOut();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         setupTabs();
         setupViewPager();
@@ -127,7 +160,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish();
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }else{
+                finish();
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);

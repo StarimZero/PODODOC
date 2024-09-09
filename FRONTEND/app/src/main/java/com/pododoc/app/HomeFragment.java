@@ -41,6 +41,7 @@ public class HomeFragment extends Fragment {
     WineAdapter whiteAdapter = new WineAdapter(false);
 
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

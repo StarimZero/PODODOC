@@ -30,6 +30,12 @@ public interface RemoteService {
     @GET("search")
     Call<HashMap<String, Object>> search(@Query("query") String query, @Query("page") int page, @Query("size") int size);
 
+    @GET("/map")
+    Call<ResponseBody> getMapData(@Query("email") String email);
+
+    @GET("/predict")
+    Call<ResponseBody> predict(@Query("index") int index);
+
     @GET("similar/{index}")
     Call<List<HashMap<String,Object>>> similar(@Path("index") int index);
 }
