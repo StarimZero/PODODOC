@@ -1,6 +1,7 @@
 package com.pododoc.app;
 
 import java.util.HashMap;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -28,5 +29,11 @@ public interface RemoteService {
 
     @GET("search")
     Call<HashMap<String, Object>> search(@Query("query") String query, @Query("page") int page, @Query("size") int size);
+
+    @GET("/map")
+    Call<ResponseBody> getMapData(@Query("email") String email);
+
+    @GET("/predict")
+    Call<ResponseBody> predict(@Query("index") int index);
 
 }

@@ -23,7 +23,6 @@ public class IndexActivity extends AppCompatActivity {
                 .load(R.drawable.mainlogo) // GIF 파일을 drawable 폴더에 넣고 로드
                 .into(imageView);
 
-        // 2초 후에 LoginActivity로 전환
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

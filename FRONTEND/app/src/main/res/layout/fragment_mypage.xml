@@ -9,25 +9,52 @@
     android:gravity="center"
     android:padding="30dp">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/photo"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/mypage"
-        app:civ_border_width="5dp"
-        app:civ_border_color="#EEE"
-        />
-    <EditText
-        android:id="@+id/email"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="email"
-        android:enabled="false"
-        />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/photo"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/mypage"
+            app:civ_border_width="2dp"
+            app:civ_border_color="#EEE"
+            />
+
+        <EditText
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="email"
+            android:enabled="false"
+            android:layout_marginStart="16dp"
+            android:textColor="#fff"
+            />
+    </LinearLayout>
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="400dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp" />
+
     <Button
         android:id="@+id/mywine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="My Wines"/>
 
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Log Out"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginTop="100dp"
+        android:background="?attr/colorPrimary"
+        android:textColor="#fff" />
 </LinearLayout>
