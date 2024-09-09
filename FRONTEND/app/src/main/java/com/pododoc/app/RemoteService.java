@@ -36,4 +36,6 @@ public interface RemoteService {
     @GET("/predict")
     Call<ResponseBody> predict(@Query("index") int index);
 
+    @GET("similar/{index}")
+    Call<List<HashMap<String,Object>>> similar(@Path("index") int index);
 }

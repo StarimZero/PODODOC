@@ -5,7 +5,7 @@ from readPage import get_data, chart
 from search import search_wine
 from reviewView import save_map_to_html
 from readPredict import WinePredictor
-
+from similar import find_similar_wines_from_name
 
 app = Flask(__name__)
 
@@ -175,5 +175,12 @@ def predict():
 
 
 
+
+@app.route('/similar/<int:index>')
+def similar(index):
+    df_sorted = find_similar_wines_from_name(index)
+    return jsonify(df_sorted[1:6])
+
+#이메일을 받아서 
 if __name__ == '__main__':
     app.run(port=5000, debug=True, host='192.168.0.11')

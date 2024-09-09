@@ -5,39 +5,48 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ReadActivity"
+    android:fillViewport="true"
     android:orientation="vertical"
 
-    android:fillViewport="true">
+    tools:context=".ReadActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="20sp">
-        <include layout="@layout/item_read"/>
+
+        <include layout="@layout/item_read" />
+
         <Button
             android:id="@+id/write"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="리뷰작성"
-            android:layout_marginBottom="20sp"/>
+            android:layout_marginBottom="20sp"
+            android:text="리뷰작성" />
 
-        <ListView
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/similarList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list"
             android:layout_width="match_parent"
-            android:layout_height="480dp"
+            android:layout_height="wrap_content"
             android:scrollbars="vertical" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="더보기"/>
+                android:text="더보기" />
         </LinearLayout>
     </LinearLayout>
 
