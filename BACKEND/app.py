@@ -3,6 +3,7 @@ import pandas as pd
 from mainPage import get_basic_red_wines, get_basic_white_wines
 from readPage import get_data, chart
 from search import search_wine
+from similar import find_similar_wines_from_name
 
 app = Flask(__name__)
 
@@ -96,6 +97,11 @@ def receive_email():
     
     # 성공 응답 반환
     return jsonify({'status': 'success', 'email': email}), 200
+
+@app.route('/similar/<int:index>')
+def similar(index):
+    df_sorted = find_similar_wines_from_name(index)
+    return jsonify(df_sorted[1:6])
 
 #이메일을 받아서 
 if __name__ == '__main__':

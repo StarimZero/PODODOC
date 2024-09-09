@@ -2,10 +2,12 @@ package com.pododoc.app;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -28,7 +30,7 @@ public class ReviewReadActivity extends AppCompatActivity {
     FirebaseFirestore db =FirebaseFirestore.getInstance();
     FirebaseAuth auth= FirebaseAuth.getInstance();
     FirebaseUser user= auth.getCurrentUser();
-
+    ImageView image;
     TextView email,date, rating;
     EditText contents;
     RatingBar ratingBar;
@@ -44,6 +46,7 @@ public class ReviewReadActivity extends AppCompatActivity {
         Intent intent = getIntent();
         id= intent.getStringExtra("id");
 
+        image = findViewById(R.id.image);
         email=findViewById(R.id.email);
         date=findViewById(R.id.date);
         rating= findViewById(R.id.rating);
@@ -126,7 +129,7 @@ public class ReviewReadActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         DocumentSnapshot doc= task.getResult();
                         String strEmail = doc.getData().get("email").toString();
-
+                        image.setImageResource(Integer.parseInt( doc.getData().get("photo").toString() ));
                         email.setText(strEmail);
                         date.setText(doc.getData().get("date").toString());
                         contents.setText(doc.getData().get("contents").toString());
