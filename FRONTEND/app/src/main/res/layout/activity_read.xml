@@ -18,18 +18,18 @@
 
         <include layout="@layout/item_read" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/similarList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
         <Button
             android:id="@+id/write"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20sp"
             android:text="리뷰작성" />
-
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/similarList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list"
