@@ -12,8 +12,8 @@ def get_basic_red_wines(page, price_range):
         # 'Red wine'만 필터링합니다
         df_red_wine = df[df['wine_type'] == 'Red wine']
 
-        # 가격을 숫자로 변환합니다
-        df_red_wine['wine_price'] = df_red_wine['wine_price'].replace('[\$,]', '', regex=True).astype(float)
+        # 가격을 숫자로 변환하고 소수점을 제거합니다
+        df_red_wine['wine_price'] = df_red_wine['wine_price'].replace('[\$,]', '', regex=True).astype(float).round(0).astype(int)
 
         # 가격 범위에 따른 필터링
         if price_range == '50000':
@@ -24,6 +24,7 @@ def get_basic_red_wines(page, price_range):
             df_filtered = df_red_wine[df_red_wine['wine_price'] > 150000]
         else:
             df_filtered = df_red_wine
+
 
         # 페이지네이션 적용
         df_paginated = df_filtered[start:end]
@@ -52,7 +53,7 @@ def get_basic_white_wines(page, price_range):
         # CSV 파일을 로드합니다
         df = pd.read_csv('data/Combined_Wine_Data.csv')
 
-        # 'Red wine'만 필터링합니다
+        # 'White wine'만 필터링합니다
         df_red_wine = df[df['wine_type'] == 'White wine']
 
         # 가격을 숫자로 변환합니다

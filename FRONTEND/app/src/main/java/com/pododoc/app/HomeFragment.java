@@ -16,6 +16,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,11 +37,12 @@ public class HomeFragment extends Fragment {
     Retrofit retrofit;
     RemoteService remoteService;
     int page = 1;
-    int total = 0;
     JSONArray redArray = new JSONArray();
     JSONArray whiteArray = new JSONArray();
     WineAdapter redAdapter = new WineAdapter(true);
     WineAdapter whiteAdapter = new WineAdapter(false);
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    FirebaseUser user = mAuth.getCurrentUser();
 
 
 
@@ -83,6 +87,8 @@ public class HomeFragment extends Fragment {
 
     public void getFilteredWines(String priceRange) {
         // 레드와인 데이터 요청
+        String email = user.getEmail();
+
         Call<HashMap<String, Object>> callRed = remoteService.basicRed(page, priceRange);
         callRed.enqueue(new Callback<HashMap<String, Object>>() {
             @Override
@@ -159,6 +165,10 @@ public class HomeFragment extends Fragment {
                 holder.point.setText("(" + obj.getString("wine_rating") + ")");
 
                 String price = obj.optString("wine_price", "");
+                if (!price.isEmpty()) {
+                    // 소수점 제거
+                    price = price.split("\\.")[0];
+                }
                 holder.price.setText(price + "원");
 
                 List<String> flavors = new ArrayList<>();

@@ -37,7 +37,7 @@ public class MypageFragment extends Fragment {
     private WebView webView;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser user = mAuth.getCurrentUser();
-    private static final int MAX_RETRIES = 5;
+    private static final int MAX_RETRIES = 10;
     private int retryCount = 0;
     EditText emailEditText;
     Button myWineButton;
