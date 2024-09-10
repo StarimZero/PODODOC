@@ -22,8 +22,6 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -44,16 +42,20 @@ public class SearchPageActivity extends AppCompatActivity {
 
     Retrofit retrofit;
     RemoteService remoteService;
+    int page = 1;
+    int total = 0;
+    int size = 10;
+    String query = "";
     WineAdapter adapter=new WineAdapter();
     JSONArray array=new JSONArray();
-    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    FirebaseUser user = mAuth.getCurrentUser();
+    private Handler handler = new Handler();
+    private Runnable searchRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mywine);
-        getSupportActionBar().setTitle("내와인");
+        setContentView(R.layout.activity_search_page);
+        getSupportActionBar().setTitle("와인 검색");
 
         retrofit=new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -61,18 +63,56 @@ public class SearchPageActivity extends AppCompatActivity {
                 .build();
         remoteService = retrofit.create(RemoteService.class);
 
-        RecyclerView list=findViewById(R.id.mywine);
+        RecyclerView list=findViewById(R.id.search_results);
         list.setAdapter(adapter);
         StaggeredGridLayoutManager manager=new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
         list.setLayoutManager(manager);
 
-        getMyWineList();
+        EditText searchInput = findViewById(R.id.search_input);
+//        ImageView searchButton = findViewById(R.id.search_button);
+
+//        searchButton.setOnClickListener(v -> {
+//            query = searchInput.getText().toString().trim();
+//            if (!query.isEmpty()) {
+//                page = 1; // Reset to first page
+//                array = new JSONArray(); // Clear previous results
+//                getSearchList();
+//            }
+//        });
+        searchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Remove any previously scheduled searches
+                handler.removeCallbacks(searchRunnable);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String newQuery = s.toString().trim();
+                query = newQuery;
+                if (!newQuery.isEmpty()) {
+                    // 1초뒤에 검색
+                    searchRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            page = 1; // 페이지리셋
+                            array = new JSONArray(); // 이전결과클리어
+                            getSearchList();
+                        }
+                    };
+                    handler.postDelayed(searchRunnable, 1000); //딜레이1초
+                }
+            }
+        });
+        getSearchList();
 
     }//oncreate
 
-    public void getMyWineList() {
-        String email = user.getEmail();
-        Call<HashMap<String, Object>> call = remoteService.getMyWine(email);
+    public void getSearchList() {
+        Call<HashMap<String, Object>> call = remoteService.search(query, page, size);
         call.enqueue(new Callback<HashMap<String, Object>>() {
             @Override
             public void onResponse(Call<HashMap<String, Object>> call, Response<HashMap<String, Object>> response) {
@@ -82,6 +122,9 @@ public class SearchPageActivity extends AppCompatActivity {
                     if (responseBody != null) {
                         // Convert HashMap to JSONObject
                         JSONObject object = new JSONObject(responseBody);
+
+                        // Extract total
+                        total = object.getInt("total");
 
                         // Extract results array
                         JSONArray arr = object.getJSONArray("results");
