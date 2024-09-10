@@ -2,6 +2,7 @@ package com.pododoc.app;
 
 import static com.pododoc.app.RemoteService.BASE_URL;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -9,22 +10,20 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -45,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -60,17 +60,16 @@ public class ReadActivity extends AppCompatActivity {
     ImageView image, imgChart, flag, heart, reviewPhoto;
     TextView name, ratingPoint, predictPoint, region, price, flavor1, flavor2, flavor3, winery, country;
     RatingBar rating, predictRating;
-    FirebaseAuth mAuth=FirebaseAuth.getInstance();
-    FirebaseUser user=mAuth.getCurrentUser();
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    FirebaseUser user = mAuth.getCurrentUser();
     FirebaseDatabase db = FirebaseDatabase.getInstance();
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     ArrayList<ReviewVO> array = new ArrayList();
     HashMap<String, Object> vo;
     List<HashMap<String, Object>> wineList;
     ReviewAdapter adapter = new ReviewAdapter();
-
-    ViewPager2 similarList;
-
+    SimilarAdapter sAdapter = new SimilarAdapter(ReadActivity.this);
+    WineVO wineVO= new WineVO();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -110,7 +109,7 @@ public class ReadActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 DatabaseReference ref = db.getReference("/like/" + user.getUid() + "/" + index);
-                ref.setValue(index);
+                ref.setValue(wineVO);
                 Toast.makeText(ReadActivity.this, "등록성공!", Toast.LENGTH_SHORT).show();
             }
         });
@@ -129,9 +128,25 @@ public class ReadActivity extends AppCompatActivity {
                 flavor2.setText(vo.get("flavor2").toString());
                 flavor3.setText(vo.get("flavor3").toString());
                 winery.setText(vo.get("wine_winery").toString());
-                region.setText(vo.get("wine_region").toString() + " /");
+                region.setText(vo.get("wine_region").toString());
                 country.setText(vo.get("wine_country").toString());
                 price.setText(vo.get("wine_price").toString() + " 원");
+                wineVO.setAcidity(Float.parseFloat(vo.get("acidity").toString()));
+                wineVO.setBody(Float.parseFloat(vo.get("body").toString()));
+                wineVO.setSweetness(Float.parseFloat(vo.get("sweetness").toString()));
+                wineVO.setTexture(Float.parseFloat(vo.get("texture").toString()));
+                wineVO.setWineCountry(vo.get("wine_country").toString());
+                wineVO.setWineName(vo.get("wine_name").toString());
+                wineVO.setIndex((int)Float.parseFloat(vo.get("index").toString()));
+                wineVO.setWineImage(vo.get("wine_image").toString());
+                wineVO.setWineRating(Float.parseFloat(vo.get("wine_rating").toString()));
+                wineVO.setWineType(vo.get("wine_type").toString());
+                wineVO.setWineRegion(vo.get("wine_region").toString());
+                wineVO.setWineReviews((int)Float.parseFloat(vo.get("wine_reviews").toString()));
+                wineVO.setWineWinery(vo.get("wine_winery").toString());
+                wineVO.setFlavor1(vo.get("flavor1").toString());
+                wineVO.setFlavor2(vo.get("flavor2").toString());
+                wineVO.setFlavor3(vo.get("flavor3").toString());
 
                 // 배열이나 리스트로 뷰와 관련된 데이터를 정의합니다.
                 int[] flavorViews = {R.id.flavor1, R.id.flavor2, R.id.flavor3};
@@ -201,9 +216,11 @@ public class ReadActivity extends AppCompatActivity {
                     if (response.isSuccessful()) {
                         wineList = response.body();
                         if (wineList != null) {
-                            setupViewPager();
-                            Log.i("winelist",wineList.toString());
-                            Log.i("size",wineList.size()+"");
+                            Log.i("winelist", wineList.toString());
+                            Log.i("size", wineList.size() + "");
+                            sAdapter.setWineList(wineList);
+                            sAdapter.notifyDataSetChanged();
+                            getSimilarList();
                         }
                     }
                 });
@@ -228,7 +245,6 @@ public class ReadActivity extends AppCompatActivity {
 
         // 예측 요청
         predictWineScore(index);
-
         getReviewList();
         RecyclerView list = findViewById(R.id.list);
         list.setAdapter(adapter);
@@ -244,10 +260,11 @@ public class ReadActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupViewPager() {
-        SimilarFragmentAdapter fragmentAdapter = new SimilarFragmentAdapter(this);
-        similarList = findViewById(R.id.similarList);
-        similarList.setAdapter(fragmentAdapter);
+    public void getSimilarList() {
+        RecyclerView similarList = findViewById(R.id.similarList);
+        similarList.setAdapter(sAdapter);
+        StaggeredGridLayoutManager sManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+        similarList.setLayoutManager(sManager);
     }
 
 
@@ -336,83 +353,87 @@ public class ReadActivity extends AppCompatActivity {
         }
     }
 
-    public class SimilarFragmentAdapter extends FragmentStateAdapter {
+    public static class SimilarAdapter extends RecyclerView.Adapter<SimilarAdapter.SViewHolder> {
+        private final Context context;
 
-        public SimilarFragmentAdapter(@NonNull FragmentActivity fragmentActivity) {
-            super(fragmentActivity);
+        private List<HashMap<String, Object>> wineList;
+
+        public SimilarAdapter(Context context) {
+            this.context = context;
+        }
+
+        public void setWineList(List<HashMap<String, Object>> wineList) {
+            this.wineList = wineList;
         }
 
         @NonNull
         @Override
-        public Fragment createFragment(int position) {
-            if (wineList != null && !wineList.isEmpty()) {
-                HashMap<String, Object> wine = wineList.get(position);
-                return SimilarFragment.newInstance(wine);
+        public SViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_similar, parent, false);
+            return new SViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull SViewHolder holder, int position) {
+            HashMap<String, Object> wine = wineList.get(position);
+            holder.name.setText(wine.get("wine_name").toString());
+            holder.ratingPoint.setText(wine.get("wine_rating").toString());
+            holder.rating.setRating(Float.parseFloat(wine.get("wine_rating").toString()));
+            holder.winery.setText(wine.get("wine_winery").toString());
+            holder.region.setText(wine.get("wine_region").toString());
+            holder.country.setText(wine.get("wine_country").toString());
+            Picasso.with(holder.itemView.getContext()).load(wine.get("wine_image").toString()).into(holder.image);
+
+            String strCountry = wine.get("wine_country").toString().toLowerCase().replace(" ", "");
+            TypedArray icons = context.getResources().obtainTypedArray(R.array.flags);
+            String[] countries = context.getResources().getStringArray(R.array.countries);
+            int flagIndex = Arrays.asList(countries).indexOf(strCountry);
+            if (flagIndex >= 0) {
+                holder.flag.setImageDrawable(icons.getDrawable(flagIndex));
             } else {
-                return new SimilarFragment(); // 빈 프래그먼트 또는 기본값
+                holder.flag.setImageResource(R.drawable.flag); // 기본 이미지
             }
+            icons.recycle();
+
+            holder.linearSimilar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, ReadActivity.class);
+                    String indexString = wine.get("index").toString();
+                    int index = (int) Float.parseFloat(indexString);
+                    intent.putExtra("index", index);
+                    context.startActivity(intent);
+                }
+            });
         }
 
         @Override
         public int getItemCount() {
             return wineList.size();
         }
+
+        class SViewHolder extends RecyclerView.ViewHolder {
+            LinearLayout linearSimilar;
+            ImageView image, flag;
+            TextView name, ratingPoint, winery, region, country, predictPoint;
+            RatingBar rating, predictRating;
+
+            public SViewHolder(@NonNull View itemView) {
+                super(itemView);
+                linearSimilar = itemView.findViewById(R.id.linearSimilar);
+                image = itemView.findViewById(R.id.image);
+                name = itemView.findViewById(R.id.name);
+                ratingPoint = itemView.findViewById(R.id.ratingPoint);
+                rating = itemView.findViewById(R.id.rating);
+                winery = itemView.findViewById(R.id.winery);
+                region = itemView.findViewById(R.id.region);
+                country = itemView.findViewById(R.id.country);
+                flag = itemView.findViewById(R.id.flag);
+                predictPoint = itemView.findViewById(R.id.predictPoint);
+                predictRating = itemView.findViewById(R.id.predictRating);
+            }
+        }
     }
-
-
-//    public static class SimilarAdapter extends RecyclerView.Adapter<SimilarAdapter.SViewHolder> {
-//        private List<HashMap<String, Object>> wineList;
-//
-//        public SimilarAdapter(List<HashMap<String, Object>> wineList) {
-//            this.wineList = wineList;
-//        }
-//
-//        public void setWineList(List<HashMap<String, Object>> wineList) {
-//            this.wineList = wineList;
-//        }
-//        @NonNull
-//        @Override
-//        public SViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_similar, parent, false);
-//            return new SViewHolder(itemView);
-//        }
-//
-//        @Override
-//        public void onBindViewHolder(@NonNull SViewHolder holder, int position) {
-//            HashMap<String, Object> wine = wineList.get(position);
-//            holder.name.setText(wine.get("wine_name").toString());
-//            holder.ratingPoint.setText(wine.get("wine_rating").toString());
-//            holder.rating.setRating(Float.parseFloat(wine.get("wine_rating").toString()));
-//            holder.price.setText(wine.get("wine_price").toString() + " 원");
-//            holder.winery.setText(wine.get("wine_winery").toString());
-//            holder.region.setText(wine.get("wine_region").toString() + " /");
-//            holder.country.setText(wine.get("wine_country").toString());
-//            Picasso.with(holder.itemView.getContext()).load(wine.get("wine_image").toString()).into(holder.image);
-//        }
-//
-//        @Override
-//        public int getItemCount() {
-//            return wineList.size();
-//        }
-//
-//        class SViewHolder extends RecyclerView.ViewHolder {
-//            ImageView image;
-//            TextView name, ratingPoint, price, winery, region, country;
-//            RatingBar rating;
-//
-//            public SViewHolder(@NonNull View itemView) {
-//                super(itemView);
-//                image = itemView.findViewById(R.id.image);
-//                name = itemView.findViewById(R.id.name);
-//                ratingPoint = itemView.findViewById(R.id.ratingPoint);
-//                rating = itemView.findViewById(R.id.rating);
-//                price = itemView.findViewById(R.id.price);
-//                winery = itemView.findViewById(R.id.winery);
-//                region = itemView.findViewById(R.id.region);
-//                country = itemView.findViewById(R.id.country);
-//            }
-//        }
-//    }
 
     @Override
     protected void onRestart() {
@@ -442,11 +463,11 @@ public class ReadActivity extends AppCompatActivity {
                         if (predictedScore != -1) {
                             // 예측 점수를 화면에 표시
                             predictPoint.setText(String.format("%.1f", predictedScore));
-                            predictRating.setRating((float) predictedScore); // RatingBar에 점수 설정
+                            predictRating.setRating((float) predictedScore);
+
                         } else {
                             Toast.makeText(ReadActivity.this, "No predicted score found", Toast.LENGTH_SHORT).show();
                         }
-
 
                     } catch (Exception e) {
                         e.printStackTrace();
