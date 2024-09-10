@@ -131,7 +131,11 @@ public class ReadActivity extends AppCompatActivity {
                 region.setText(vo.get("wine_region").toString());
                 country.setText(vo.get("wine_country").toString());
                 price.setText(vo.get("wine_price").toString() + " 원");
-                wineVO.setAcidity(Float.parseFloat(vo.get("acidity").toString()));
+                if(vo.get("acidity")==null){
+                    wineVO.setAcidity(0.0f);
+                }else{
+                    wineVO.setAcidity(Float.parseFloat(vo.get("acidity").toString()));
+                }
                 wineVO.setBody(Float.parseFloat(vo.get("body").toString()));
                 wineVO.setSweetness(Float.parseFloat(vo.get("sweetness").toString()));
                 wineVO.setTexture(Float.parseFloat(vo.get("texture").toString()));
