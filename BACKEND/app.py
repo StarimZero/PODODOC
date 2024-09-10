@@ -240,4 +240,4 @@ def get_wine_data():
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True, host='192.168.0.238')
+    app.run(port=5000, debug=True, host='192.168.0.11')
