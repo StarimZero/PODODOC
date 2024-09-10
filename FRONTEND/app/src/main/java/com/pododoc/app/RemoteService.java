@@ -43,4 +43,7 @@ public interface RemoteService {
 
     @GET("mywine")
     Call<HashMap<String, Object>> getMyWine(@Query("email") String email);
+
+    @GET("wine/redrecommend")
+    Call<HashMap<String, Object>> redmain(@Query("email") String email, @Query("price") String price);
 }

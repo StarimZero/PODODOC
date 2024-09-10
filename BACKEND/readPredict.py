@@ -4,6 +4,8 @@ from firebase_admin import credentials, firestore
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
 
 class WinePredictor:
     def __init__(self, firebase_key_path, csv_path):
@@ -38,7 +40,7 @@ class WinePredictor:
         final_data = self._combine_data(data, attributes)
         
         # 별점 기반 가중치 컬럼 추가
-        final_data['weight'] = final_data['rating']
+        final_data['weight'] = final_data['rating'] * 1000
         
         # 범주형 데이터 전처리
         self._encode_labels(final_data)
@@ -49,25 +51,29 @@ class WinePredictor:
         weights = final_data['weight']
         
         # 정규화
-        features_scaled = StandardScaler().fit_transform(features)
+        self.scaler_red = StandardScaler()
+        features_scaled = self.scaler_red.fit_transform(features)
         
-        # 데이터 분할
-        X_train, X_test, y_train, y_test, w_train, w_test = train_test_split(features_scaled, target, weights, test_size=0.2, random_state=42)
-        
-        # Red wine 모델 정의 및 학습
-        self.model_red = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
-        self.model_red.fit(X_train, y_train, sample_weight=w_train)
-        
-        # White wine 모델 정의 및 학습
-        self.model_white = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
-        self.model_white.fit(X_train, y_train, sample_weight=w_train)
-        
-        # 모델 평가
-        score_red = self.model_red.score(X_test, y_test)
-        score_white = self.model_white.score(X_test, y_test)
-        print(f"Red wine 모델 성능 (R^2 score): {score_red}")
-        print(f"White wine 모델 성능 (R^2 score): {score_white}")
+        # 모델 정의
+        self.model_red = GradientBoostingRegressor(n_estimators=200, learning_rate=0.1, random_state=42)
+        self.model_white = GradientBoostingRegressor(n_estimators=200, learning_rate=0.1, random_state=42)
 
+        # 교차 검증 설정
+        cv = KFold(n_splits=5, shuffle=True, random_state=42)
+
+        # Red wine 모델 학습 및 평가
+        scores_red = cross_val_score(self.model_red, features_scaled, target, cv=cv, scoring='r2', fit_params={'sample_weight': weights})
+        print(f"Red wine 모델 교차 검증 성능 (R^2 scores): {scores_red}")
+        print(f"Red wine 모델 평균 교차 검증 성능 (R^2 score): {scores_red.mean()}")
+
+        # White wine 모델 학습 및 평가
+        scores_white = cross_val_score(self.model_white, features_scaled, target, cv=cv, scoring='r2', fit_params={'sample_weight': weights})
+        print(f"White wine 모델 교차 검증 성능 (R^2 scores): {scores_white}")
+        print(f"White wine 모델 평균 교차 검증 성능 (R^2 score): {scores_white.mean()}")
+
+        # 전체 데이터로 모델 학습
+        self.model_red.fit(features_scaled, target, sample_weight=weights)
+        self.model_white.fit(features_scaled, target, sample_weight=weights)
     def _read_email(self):
         # 이메일 읽기
         with open('received_email.txt', 'r') as file:
@@ -192,4 +198,3 @@ class WinePredictor:
         predicted_score = self.model_white.predict(input_data_scaled)
         
         return predicted_score[0]
-
