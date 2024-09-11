@@ -10,4 +10,8 @@
         <item name="colorControlNormal">#B2BFBEBF</item>
         <item name="colorControlActivated">#FFC107</item>
     </style>
+
+    <style name="CustomTabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="tabBackground">@color/pododoc_color</item> <!-- Custom background drawable -->
+    </style>
 </resources>

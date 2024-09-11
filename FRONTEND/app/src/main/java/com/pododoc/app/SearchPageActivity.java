@@ -69,16 +69,7 @@ public class SearchPageActivity extends AppCompatActivity {
         list.setLayoutManager(manager);
 
         EditText searchInput = findViewById(R.id.search_input);
-//        ImageView searchButton = findViewById(R.id.search_button);
 
-//        searchButton.setOnClickListener(v -> {
-//            query = searchInput.getText().toString().trim();
-//            if (!query.isEmpty()) {
-//                page = 1; // Reset to first page
-//                array = new JSONArray(); // Clear previous results
-//                getSearchList();
-//            }
-//        });
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -151,7 +142,6 @@ public class SearchPageActivity extends AppCompatActivity {
         });
     }
     class WineAdapter extends RecyclerView.Adapter<WineAdapter.ViewHolder>{
-
 
         @NonNull
         @Override

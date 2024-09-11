@@ -1,5 +1,7 @@
 package com.pododoc.app;
 
+import static com.pododoc.app.RemoteService.BASE_URL;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -77,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
 
             // 서버로 POST 요청
             Request request = new Request.Builder()
-                    .url("http://192.168.0.11:5000/api/receive-email")
+                    .url(BASE_URL+"api/receive-email")
                     .post(body)
                     .build();
 

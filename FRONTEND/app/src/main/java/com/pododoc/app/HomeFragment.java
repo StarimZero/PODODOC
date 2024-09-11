@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +20,13 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.internal.LinkedTreeMap;
 import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,6 +48,10 @@ public class HomeFragment extends Fragment {
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser user = mAuth.getCurrentUser();
 
+    String priceRange = "50000";
+
+    private List<JSONObject> mywineList = new ArrayList<>();
+
 
 
     @Override
@@ -61,9 +69,18 @@ public class HomeFragment extends Fragment {
         Button btnUnder150000 = view.findViewById(R.id.btn_under_150000);
         Button btnOver150000 = view.findViewById(R.id.btn_over_150000);
 
-        btnUnder50000.setOnClickListener(v -> getFilteredWines("50000"));
-        btnUnder150000.setOnClickListener(v -> getFilteredWines("150000"));
-        btnOver150000.setOnClickListener(v -> getFilteredWines("over150000"));
+        btnUnder50000.setOnClickListener(v -> {
+            priceRange = "50000";
+            getMyWine();
+        });
+        btnUnder150000.setOnClickListener(v -> {
+            priceRange = "150000";
+            getMyWine();
+        });
+        btnOver150000.setOnClickListener(v -> {
+            priceRange = "over150000";
+            getMyWine();
+        });
 
         RecyclerView redWineList = view.findViewById(R.id.red_wine_list);
         RecyclerView whiteWineList = view.findViewById(R.id.white_wine_list);
@@ -78,14 +95,69 @@ public class HomeFragment extends Fragment {
 
         redWineList.setLayoutManager(redManager);
         whiteWineList.setLayoutManager(whiteManager);
+        //마이와인 데이터체크
+        getMyWine();
 
         // 기본 데이터 로드
-        getFilteredWines("50000");
-
+//        getFilteredWines("50000");
         return view;
     }
 
-    public void getFilteredWines(String priceRange) {
+    private void handleWineListUpdate() {
+        if (mywineList.size() > 10) {
+            getRecommendRed();
+        } else {
+            getFilteredWines();
+        }
+    }
+
+    public void getRecommendRed(){
+        String email = user.getEmail();
+        Call<HashMap<String, Object>> redMain = remoteService.redmain(email,priceRange);
+        redMain.enqueue(new Callback<HashMap<String, Object>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, Object>> call, Response<HashMap<String, Object>> response) {
+                if (response.body() != null) {
+                    try {
+                        JSONObject object = new JSONObject(response.body());
+                        redArray = object.getJSONArray("list");
+                        redAdapter.notifyDataSetChanged();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, Object>> call, Throwable t) {
+                Log.e("getRecommendRed", "Error: " + t.getMessage());
+            }
+        });
+
+        // 화이트와인 데이터 요청
+        Call<HashMap<String, Object>> callWhite = remoteService.basicWhite(page, priceRange);
+        callWhite.enqueue(new Callback<HashMap<String, Object>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, Object>> call, Response<HashMap<String, Object>> response) {
+                if (response.body() != null) {
+                    try {
+                        JSONObject object = new JSONObject(response.body());
+                        whiteArray = object.getJSONArray("list");
+                        whiteAdapter.notifyDataSetChanged();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, Object>> call, Throwable t) {
+                // Handle failure
+            }
+        });
+    }
+
+    public void getFilteredWines() {
         // 레드와인 데이터 요청
         String email = user.getEmail();
 
@@ -106,7 +178,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onFailure(Call<HashMap<String, Object>> call, Throwable t) {
-                // Handle failure
+                Log.e("getFilteredWines", "Error: " + t.getMessage());
             }
         });
 
@@ -168,8 +240,17 @@ public class HomeFragment extends Fragment {
                 if (!price.isEmpty()) {
                     // 소수점 제거
                     price = price.split("\\.")[0];
+                    // 숫자를 천 단위로 포맷팅
+                    try {
+                        int priceValue = Integer.parseInt(price);
+                        // 천 단위로 콤마를 넣기 위해 NumberFormat 사용
+                        NumberFormat numberFormat = NumberFormat.getInstance();
+                        price = numberFormat.format(priceValue);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
                 }
-                holder.price.setText(price + "원");
+                holder.price.setText("판매가: " + price + "원");
 
                 List<String> flavors = new ArrayList<>();
                 if (!obj.optString("flavor1", "").isEmpty()) flavors.add(obj.optString("flavor1", ""));
@@ -226,6 +307,48 @@ public class HomeFragment extends Fragment {
                 point = itemView.findViewById(R.id.point);
                 rating = itemView.findViewById(R.id.rating);
             }
+        }
+    }
+
+    public void getMyWine() {
+        if (user != null) {
+            String email = user.getEmail();
+            Call<HashMap<String, Object>> call = remoteService.getMyWine(email);
+            call.enqueue(new Callback<HashMap<String, Object>>() {
+                @Override
+                public void onResponse(Call<HashMap<String, Object>> call, Response<HashMap<String, Object>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        HashMap<String, Object> responseBody = response.body();
+                        // "results" 값을 가져와서 타입 확인
+                        Object results = responseBody.get("results");
+                        if (results instanceof ArrayList) {
+                            ArrayList<Object> list = (ArrayList<Object>) results;
+                            mywineList.clear(); // Clear existing data
+                            for (Object item : list) {
+                                if (item instanceof LinkedTreeMap) {
+                                    // Convert LinkedTreeMap to JSONObject
+                                    LinkedTreeMap<String, Object> treeMap = (LinkedTreeMap<String, Object>) item;
+                                    JSONObject jsonObject = new JSONObject(treeMap);
+                                    mywineList.add(jsonObject);
+                                    Log.i("size", String.valueOf(mywineList.size()));
+                                } else {
+                                    Log.e("Mywine", "Unexpected item type: " + item.getClass().getName());
+                                }
+                            }
+                            handleWineListUpdate();
+                        } else {
+                            Log.e("Mywine", "Expected ArrayList but got: " + results.getClass().getName());
+                        }
+                    } else {
+                        Log.e("Mywine", "Response not successful or body is null");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<HashMap<String, Object>> call, Throwable t) {
+                    Log.e("Mywine", "Failure: " + t.getMessage());
+                }
+            });
         }
     }
 }

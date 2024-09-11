@@ -9,16 +9,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         >
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/person"/>
         <TextView
             android:id="@+id/email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:layout_marginStart="10dp"
+            android:layout_marginBottom="10dp"
             android:text="email"
             />
     </LinearLayout>

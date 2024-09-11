@@ -3,6 +3,7 @@ package com.pododoc.app;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,7 +30,7 @@ public class PermissionActivity extends AppCompatActivity {
         String[] permissions= {
                 android.Manifest.permission.READ_MEDIA_IMAGES,
                 android.Manifest.permission.READ_MEDIA_AUDIO,
-                android.Manifest.permission.READ_MEDIA_VIDEO
+                android.Manifest.permission.READ_MEDIA_VIDEO,
         };
         ArrayList<String> checkPermission = new ArrayList<>();
         for(String permission:permissions){
@@ -53,6 +54,7 @@ public class PermissionActivity extends AppCompatActivity {
         for(int i=0; i < permissions.length; i++) {
             if(grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                 isAll = false;
+                Log.d("Permission", "Permission denied: " + permissions[i]);
                 break;
             }
         }
