@@ -48,4 +48,7 @@ public interface RemoteService {
 
     @GET("wine/redrecommend")
     Call<HashMap<String, Object>> redmain(@Query("email") String email, @Query("price") String price);
+
+    @GET("wine/whiterecommend")
+    Call<HashMap<String, Object>> whitemain(@Query("email") String email, @Query("price") String price);
 }

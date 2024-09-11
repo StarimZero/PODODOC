@@ -135,8 +135,8 @@ public class HomeFragment extends Fragment {
         });
 
         // 화이트와인 데이터 요청
-        Call<HashMap<String, Object>> callWhite = remoteService.basicWhite(page, priceRange);
-        callWhite.enqueue(new Callback<HashMap<String, Object>>() {
+        Call<HashMap<String, Object>> whitemain = remoteService.whitemain(email, priceRange);
+        whitemain.enqueue(new Callback<HashMap<String, Object>>() {
             @Override
             public void onResponse(Call<HashMap<String, Object>> call, Response<HashMap<String, Object>> response) {
                 if (response.body() != null) {
