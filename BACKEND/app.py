@@ -7,7 +7,8 @@ from reviewView import save_map_to_html
 from readPredict import WinePredictor
 from similar import find_similar_whites_from_index
 from myWine import get_combined_data
-from recommend import recommend_redwine
+from red_recommend import recommend_redwine
+from white_recommend import recommend_whitewine
 
 
 app = Flask(__name__)
@@ -80,6 +81,27 @@ def basicwhite():
         return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+@app.route('/wine/whiterecommend', methods=['GET'])
+def recommend_white():
+    try:
+        # 쿼리 문자열에서 이메일 주소와 가격 범위를 읽어오기
+        email = request.args.get('email')
+        price_range = request.args.get('price', 'all')  # 기본값 'all'로 설정
+        
+        if not email:
+            return jsonify({"error": "Email is required"}), 400
+        
+        # 이메일 주소와 가격 범위를 기반으로 추천 결과 생성
+        recommendations = recommend_whitewine(email, price_range)
+        
+        # DataFrame을 JSON으로 변환하여 반환
+        return jsonify(recommendations.to_dict(orient='records'))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    
 
 @app.route('/wine/<int:index>')
 def read(index):
