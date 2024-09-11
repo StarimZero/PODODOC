@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 title = "와인찾기";
                 break;
             case 2:
-                title = "나의와인리스트";
+                title = "즐겨찾기 리스트";
                 break;
             case 3:
                 title = "내정보";

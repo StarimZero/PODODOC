@@ -21,11 +21,11 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab"
         android:layout_width="match_parent"
-        android:background="#B39DDB"
+        android:background="@color/pododoc_color"
         android:layout_height="wrap_content"
         app:tabTextColor="#171717"
         app:tabIconTint="#F5F5F5"
-        app:tabIndicatorColor="#171717"
+        app:tabIndicatorColor="#FFFFFF"
         android:padding="5sp"/>
     </LinearLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

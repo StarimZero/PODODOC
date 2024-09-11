@@ -332,6 +332,7 @@ public class ReadActivity extends AppCompatActivity {
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(ReadActivity.this, ReviewReadActivity.class);
                 intent.putExtra("id", vo.getId());
+                intent.putExtra("email",vo.getEmail());
                 startActivity(intent);
             });
         }

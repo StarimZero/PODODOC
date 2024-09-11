@@ -7,6 +7,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.metrics.pairwise import euclidean_distances
 import re
 import logging
+import json
 
 def initialize_firebase():
     if not len(firebase_admin._apps):
@@ -54,8 +55,6 @@ def filter_by_price(df_red_wine, price_range):
         df_filtered = df_red_wine
     
     return df_filtered
-
-
 
 def process_data(email, price_range):
     initialize_firebase()
@@ -162,12 +161,12 @@ def get_wine_details(similar_wines_df, original_data):
     wine_details = wine_details.set_index('index').reindex(similar_indices).reset_index()
     wine_details = wine_details.merge(similar_wines_df, on='index')
     
-    columns_of_interest = [
-        'index', 'wine_name', 'wine_rating', 'wine_price',
-        'wine_country', 'wine_region', 'wine_winery', 'wine_type', 'wine_grape', 'wine_image', 'distance'
-    ]
+    # columns_of_interest = [
+    #     'index', 'wine_name', 'wine_rating', 'wine_price',
+    #     'wine_country', 'wine_region', 'wine_winery', 'wine_type', 'wine_grape', 'wine_image', 'distance'
+    # ]
     
-    wine_details = wine_details[columns_of_interest]
+    # wine_details = wine_details[columns_of_interest]
     
     def extract_name_prefix(name):
         match = re.match(r'^(.*\D)', name)
@@ -198,5 +197,12 @@ def recommend_redwine(email, price_range):
     
     # 가격 범위 필터링 적용
     filtered_wine_details = filter_by_price(wine_details, price_range)
+    # 데이터프레임을 JSON으로 변환
+    list_paginated = filtered_wine_details.to_json(orient='records')
+    list_paginated = json.loads(list_paginated)
     
-    return filtered_wine_details
+    data = {
+    'total': len(filtered_wine_details),
+    'list': list_paginated
+    }
+    return data

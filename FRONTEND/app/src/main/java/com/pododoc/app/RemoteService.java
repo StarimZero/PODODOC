@@ -14,6 +14,8 @@ import retrofit2.http.Query;
 public interface RemoteService {
     public static final String BASE_URL = "http://192.168.0.11:5000/";
 
+    public static final int CAMERA_REQUEST = 1888;
+
     @GET("wine/list.json")
     Call<HashMap<String,Object>> list(@Query("page") int page);
 

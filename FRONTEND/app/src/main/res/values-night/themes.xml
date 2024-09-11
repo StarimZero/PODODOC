@@ -1,7 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.PODODOC" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <style name="Base.Theme.PODODOC" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">@color/pododoc_color</item>
+        <item name="colorSecondary">@color/pododoc_color</item>
+        <item name="colorPrimaryContainer">@color/pododoc_color</item>
+        <item name="colorOnPrimary">@android:color/white</item> <!-- 텍스트 색상 -->
     </style>
 </resources>

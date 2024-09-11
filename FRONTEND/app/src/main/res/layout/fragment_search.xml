@@ -30,20 +30,10 @@
             />
     </LinearLayout>
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/linear" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/top"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="20sp"
-        android:src="@drawable/up"
-        app:tint="#FFFFFF" />
 </RelativeLayout>

@@ -14,4 +14,5 @@
     <color name="tropical">#FF6F00</color>
     <color name="ageing">#BFAE6A</color>
     <color name="default_background_color">#E0E0E0</color> <!-- Light gray color -->
+    <color name="pododoc_color">#501a76</color>
 </resources>

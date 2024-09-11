@@ -1,11 +1,16 @@
 package com.pododoc.app;
 
+import static com.pododoc.app.RemoteService.CAMERA_REQUEST;
+
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
@@ -23,6 +28,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -42,6 +49,8 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -95,7 +104,13 @@ public class ReviewInsertActivity extends AppCompatActivity {
                         startActivityResult.launch(intent);
                     }
                 });
-                box.setPositiveButton("카메라",null);
+                box.setPositiveButton("카메라", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                    }
+                });
                 box.show();
 
             }
@@ -125,7 +140,7 @@ public class ReviewInsertActivity extends AppCompatActivity {
     public void insertReview(){
         vo.setContents(contents.getText().toString());
         Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         vo.setDate(sdf.format(date));
         db.collection("review")
             .add(vo)
@@ -138,6 +153,46 @@ public class ReviewInsertActivity extends AppCompatActivity {
                     }
                 }
             });
+    }
+    //카메라에서 촬영후 이미지 업로드
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
+            // 카메라로 촬영된 이미지를 처리
+            Bitmap photoBitmap = (Bitmap) data.getExtras().get("data");
+            photo.setImageBitmap(photoBitmap);
+            // Bitmap을 파일로 저장
+            try {
+                // 임시 파일 생성
+                File tempFile = createImageFile();
+                FileOutputStream fos = new FileOutputStream(tempFile);
+                photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos.close();
+
+                // 파일 경로를 strFile에 저장
+                strFile = tempFile.getAbsolutePath();
+                Log.i("strFile",strFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // 이미지 파일 생성 메서드
+    private File createImageFile() throws IOException {
+        // 파일 이름을 타임스탬프로 생성
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+
+        // 임시 파일을 앱의 캐시 디렉토리에 생성
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* 파일 이름 */
+                ".jpg",         /* 파일 확장자 */
+                storageDir      /* 저장할 디렉토리 */
+        );
+        return image;
     }
 
     //앨범에서 이미지 선택

@@ -63,7 +63,7 @@ def recommend():
         recommendations = recommend_redwine(email, price_range)
         
         # DataFrame을 JSON으로 변환하여 반환
-        return jsonify(recommendations.to_dict(orient='records'))
+        return jsonify(recommendations)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -210,11 +210,6 @@ def similar(index):
     return jsonify(df_sorted[1:6])
 
 #이메일을 받아서 
-
-
-
-
-
 @app.route('/mywine', methods=['GET'])
 def get_wine_data():
     try:
