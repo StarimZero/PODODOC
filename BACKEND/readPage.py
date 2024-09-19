@@ -7,8 +7,8 @@ import numpy as np
 import io
 from PIL import Image
 
-def get_data(index):
-    df = pd.read_csv('data/Combined_Wine_Data.csv')
+def get_data(index ,df):
+    #df = pd.read_csv('data/Combined_Wine_Data.csv')
     filt= df['index'] == index
     df=df[filt]
 
@@ -17,28 +17,34 @@ def get_data(index):
     
     return data[0]
 
-def chart(index):
-    df = pd.read_csv('data/Combined_Wine_Data.csv')
-    categories = ['body', 'texture', 'sweetness', 'acidity']
-
+def chart(index , df):
+    df= df
     # 선택한 인덱스의 데이터를 가져옴
     row = df[df['index'] == index]
-    # null이 아닌 값들만 남기고 해당 카테고리들을 필터링
-    categories_filtered = [col for col in categories if pd.notnull(row[col].values[0])]
-    values = [row[col].values[0] for col in categories_filtered]
+    wine_type = row['wine_type'].values[0] 
+    if wine_type =='White wine' :
+        categories = ['body', 'texture', 'sweetness']
+        colors = {
+            'body': '#9C27B0',     
+            'texture': '#4a90e2',
+            'sweetness': '#ff6361',
+        }
+    else :
+        categories = ['body', 'texture', 'sweetness', 'acidity']
+        colors = {
+            'body': '#9C27B0',      
+            'texture': '#4a90e2',
+            'sweetness': '#ff6361',
+            'acidity': '#ffa600'
+        }
+
+    values = [row[col].values[0] for col in categories]
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
     # x축 범위와 레이블 설정
     ax.set_xlim(0, 100)
     ax.set_facecolor('#121212')
-    # 각 속성에 대한 색상
-    colors = {
-        'body': '#003f5c',
-        'texture': '#58508d',
-        'sweetness': '#ff6361',
-        'acidity': '#ffa600'
-    }
 
     # 각 속성에 대해 두꺼운 막대와 점을 표시
     bar_width = 0.47
@@ -49,8 +55,8 @@ def chart(index):
         ax.plot(value, i, 'o', markersize=40, color=colors[category], label=f'{category}: {value:.2f}')
 
      # 레이블과 격자 설정
-    ax.set_yticks(np.arange(len(categories_filtered)))
-    ax.set_yticklabels(categories_filtered, fontsize=40, color='white')  # 글자 크기와 색상 설정
+    ax.set_yticks(np.arange(len(categories)))
+    ax.set_yticklabels(categories, fontsize=40, color='white')  # 글자 크기와 색상 설정
     ax.grid(False)
     ax.set_xticks([])
     ax.set_xlabel('')

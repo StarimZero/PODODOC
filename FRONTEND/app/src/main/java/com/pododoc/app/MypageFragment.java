@@ -2,6 +2,8 @@
 package com.pododoc.app;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -12,6 +14,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,7 +44,7 @@ public class MypageFragment extends Fragment {
     private int retryCount = 0;
     EditText emailEditText;
     Button myWineButton;
-
+    ImageView ratingGraph;
 
     @Nullable
     @Override
@@ -54,6 +57,8 @@ public class MypageFragment extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create()) // Use GsonConverterFactory for JSON
                 .build();
         remoteService = retrofit.create(RemoteService.class);
+
+        ratingGraph = view.findViewById(R.id.ratingGraph);
 
         // Initialize WebView
         webView = view.findViewById(R.id.webView);
@@ -96,6 +101,7 @@ public class MypageFragment extends Fragment {
             }
         });
 
+        getRatingGraph();
 
         return view;
     }
@@ -140,5 +146,32 @@ public class MypageFragment extends Fragment {
                 }
             }
         });
+    }
+
+    public void getRatingGraph() {
+        if (user != null) {
+            String email = user.getEmail();
+            Call<ResponseBody> ratingGraphImage = remoteService.ratingGraphImage(email);
+            ratingGraphImage.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    InputStream inputStream = response.body().byteStream();
+                    // InputStream을 Bitmap으로 변환
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                    // 이미지 뷰에 설정
+                    ratingGraph.setImageBitmap(bitmap);
+                }
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getRatingGraph();
     }
 }

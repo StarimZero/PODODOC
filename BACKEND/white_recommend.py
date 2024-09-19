@@ -32,12 +32,11 @@ def fetch_data_by_email(email):
             })
     return data
 
-def load_wine_data(file_path):
-    df_white_wine = pd.read_csv(file_path)
+def load_wine_data(df):
+    df_white_wine = df
     
     # 가격을 숫자로 변환합니다
     df_white_wine['wine_price'] = df_white_wine['wine_price'].replace(r'[\$,]', '', regex=True).astype(float)
-    
     return df_white_wine
 
 def filter_by_price(df_white_wine, price_range):
@@ -56,14 +55,14 @@ def filter_by_price(df_white_wine, price_range):
     
     return df_filtered
 
-def process_data(email, price_range):
+def process_data(email, price_range,df):
     initialize_firebase()
     data = fetch_data_by_email(email)
     
     if not data:
         return {"error": "No data found for the provided email."}
     
-    wine_data = load_wine_data('data/Clean_White_data.csv')
+    wine_data = load_wine_data(df)
     
     # 가격 범위 필터링
     filtered_wine_data = filter_by_price(wine_data, price_range)
@@ -146,8 +145,8 @@ def find_similar_wines_from_result_df(result_df, target_index, original_data):
 
     return similar_wines[['index', 'distance']]
 
-def load_and_prepare_data(csv_file_path):
-    original_data = pd.read_csv(csv_file_path)
+def load_and_prepare_data(df):
+    original_data = df
     if 'index' not in original_data.columns:
         original_data = original_data.reset_index()
         original_data.rename(columns={'index': 'index'}, inplace=True)
@@ -181,13 +180,13 @@ def get_wine_details(similar_wines_df, original_data):
     
     return wine_details
 
-def recommend_whitewine(email, price_range):
-    result_df = process_data(email, price_range)
+def recommend_whitewine(email, price_range, df):
+    result_df = process_data(email, price_range,df)
     if 'error' in result_df:
         return result_df
     
-    csv_file_path = 'data/Clean_White_data.csv'
-    original_data = load_and_prepare_data(csv_file_path)
+    #csv_file_path = 'data/Clean_White_data.csv'
+    original_data = load_and_prepare_data(df)
     target_index = 0
     
     similar_wines_indices = find_similar_wines_from_result_df(result_df, target_index, original_data)

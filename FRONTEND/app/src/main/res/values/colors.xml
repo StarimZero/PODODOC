@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="earthy">#7B5A4E</color>
-    <color name="blackfruit">#3B3B3B</color>
-    <color name="redfruit">#C8102E</color>
+    <color name="earthy">#b59b6f</color>
+    <color name="blackfruit">#2c3e80</color>
+    <color name="redfruit">#c73a31</color>
     <color name="oaky">#8c5433</color>
-    <color name="spices">#C15C5C</color>
-    <color name="driedfruit">#8B5B29</color>
-    <color name="yeasty">#D0C7B0</color>
-    <color name="citrus">#F9A825</color>
-    <color name="floral">#F5A9B8</color>
-    <color name="treefruit">#F1C40F</color>
-    <color name="vegetal">#4B9F4D</color>
-    <color name="tropical">#FF6F00</color>
-    <color name="ageing">#BFAE6A</color>
+    <color name="spices">#b19058</color>
+    <color name="driedfruit">#b9655d</color>
+    <color name="yeasty">#c38449</color>
+    <color name="citrus">#ee813e</color>
+    <color name="floral">#f86677</color>
+    <color name="treefruit">#809632</color>
+    <color name="vegetal">#9c9a2a</color>
+    <color name="tropical">#e99228</color>
+    <color name="ageing">#9e6d40</color>
     <color name="default_background_color">#E0E0E0</color> <!-- Light gray color -->
     <color name="pododoc_color">#501a76</color>
 </resources>

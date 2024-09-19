@@ -29,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -166,9 +167,21 @@ public class SearchFragment extends Fragment {
                 String region = obj.getString("wine_region");
                 holder.region.setText(region + " /");
                 holder.point.setText("(" + obj.getString("wine_rating") + ")");
-
-                String price = obj.optString("wine_price", "");
-                holder.price.setText(price + "원");
+                String strPrice = obj.optString("wine_price", "");
+                if (!strPrice.isEmpty()) {
+                    // 소수점 제거
+                    strPrice = strPrice.split("\\.")[0];
+                    // 숫자를 천 단위로 포맷팅
+                    try {
+                        int priceValue = Integer.parseInt(strPrice);
+                        // 천 단위로 콤마를 넣기 위해 NumberFormat 사용
+                        NumberFormat numberFormat = NumberFormat.getInstance();
+                        strPrice = numberFormat.format(priceValue);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
+                holder.price.setText("판매가: " + strPrice + "원");
                 // 맛 설정: flavor1, flavor2, flavor3을 리스트로 받아서 하나의 문자열로 합치기
                 String flavor1 = obj.optString("flavor1", "");
                 String flavor2 = obj.optString("flavor2", "");

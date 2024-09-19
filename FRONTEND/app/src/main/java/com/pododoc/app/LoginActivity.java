@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -28,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     EditText email, pass;
+    Button login,join;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,27 @@ public class LoginActivity extends AppCompatActivity {
 
         email = findViewById(R.id.email);
         pass = findViewById(R.id.pass);
+        join = findViewById(R.id.join);
+
+        join.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String strEmail = email.getText().toString();
+                String strPass = pass.getText().toString();
+
+                mAuth.createUserWithEmailAndPassword(strEmail,strPass)
+                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if(task.isSuccessful()){
+                                    Toast.makeText(LoginActivity.this,"가입성공", Toast.LENGTH_SHORT).show();
+                                }else{
+                                    Toast.makeText(LoginActivity.this,"가입실패", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
+        });
 
         findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
             @Override

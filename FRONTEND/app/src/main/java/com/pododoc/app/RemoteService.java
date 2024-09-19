@@ -12,7 +12,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface RemoteService {
-    public static final String BASE_URL = "http://192.168.0.11:5000/";
+    public static final String BASE_URL = "http://192.168.0.238:5000/";
 
     public static final int CAMERA_REQUEST = 1888;
 
@@ -38,7 +38,7 @@ public interface RemoteService {
     Call<ResponseBody> getMapData(@Query("email") String email);
 
     @GET("/predict")
-    Call<ResponseBody> predict(@Query("index") int index);
+    Call<ResponseBody> predict(@Query("email") String email, @Query("index") int index);
 
     @GET("similar/{index}")
     Call<List<HashMap<String,Object>>> similar(@Path("index") int index);
@@ -51,4 +51,7 @@ public interface RemoteService {
 
     @GET("wine/whiterecommend")
     Call<HashMap<String, Object>> whitemain(@Query("email") String email, @Query("price") String price);
+
+    @GET("/ratingGraph")
+    Call<ResponseBody> ratingGraphImage(@Query("email") String email);
 }

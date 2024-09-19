@@ -43,6 +43,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -68,6 +69,8 @@ public class ReviewReadActivity extends AppCompatActivity {
     String writer = "";
     ReviewVO vo = new ReviewVO();
     String strFile = "";
+    String prevFile= "";
+    Uri uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,7 +162,13 @@ public class ReviewReadActivity extends AppCompatActivity {
                 box.setPositiveButton("네", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        uploadPhoto(strFile);
+                        if(strFile.equals("")){
+                            String fixedUrl = uri.toString();
+                            vo.setPhoto(fixedUrl);
+                            updateReview();
+                        }else{
+                            uploadPhoto(strFile);
+                        }
                     }
                 });
                 box.setNegativeButton("아니오", null);
@@ -187,11 +196,13 @@ public class ReviewReadActivity extends AppCompatActivity {
                             image.setImageResource(R.drawable.person);
                             vo.setPhoto(null);
                         } else {
-                            strFile = doc.getData().get("photo").toString();
-                            Picasso.with(ReviewReadActivity.this).load(strFile).into(image);
+                            prevFile = doc.getData().get("photo").toString();
+                            Picasso.with(ReviewReadActivity.this).load(prevFile).into(image);
                             vo.setPhoto(doc.getData().get("photo").toString());
-                            Log.i("imagePath", strFile);
+                            uri =Uri.parse(prevFile);
+                            Log.i("imagePath", prevFile);
                         }
+                        Log.i("photo",doc.getData().get("photo").toString());
                         email.setText(strEmail);
                         date.setText(doc.getData().get("date").toString());
                         contents.setText(doc.getData().get("contents").toString());
@@ -277,14 +288,11 @@ public class ReviewReadActivity extends AppCompatActivity {
     }
 
     public void updateReview() {
-
         vo.setContents(contents.getText().toString());
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        vo.setDate(sdf.format(date));
+        Log.i("updatevo",vo.toString());
         db.collection("review")
                 .document(id)
-                .set(vo)
+                .set(vo, SetOptions.merge())
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {

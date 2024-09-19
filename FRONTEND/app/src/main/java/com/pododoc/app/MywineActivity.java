@@ -3,6 +3,8 @@ package com.pododoc.app;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -27,11 +29,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -54,6 +58,8 @@ public class MywineActivity extends AppCompatActivity {
         setContentView(R.layout.activity_mywine);
         getSupportActionBar().setTitle("내와인");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
 
         // Retrofit 초기화
         retrofit = new Retrofit.Builder()
@@ -146,6 +152,7 @@ public class MywineActivity extends AppCompatActivity {
                 String strGrape = obj.getString("wine_grape");
                 String strRegion = obj.getString("wine_region");
                 float rating = (float) obj.getDouble("rating");
+                String strDate = obj.getString("date");
 
                 // Set data to views
                 holder.winery.setText(strWinery);
@@ -155,6 +162,7 @@ public class MywineActivity extends AppCompatActivity {
                 holder.country.setText(strCountry);
                 holder.ratingBar.setRating(rating);
                 holder.ratingScore.setText(String.valueOf(rating));
+                holder.date.setText(strDate);
 
                 // Load wine image using Picasso
                 Picasso.with(MywineActivity.this).load(strImage).into(holder.photo);
@@ -209,6 +217,14 @@ public class MywineActivity extends AppCompatActivity {
                 card = itemView.findViewById(R.id.list);
             }
         }
+    }
+
+
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        getMyWine();
     }
 }
 
