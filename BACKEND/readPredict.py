@@ -8,7 +8,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 
 class WinePredictor:
-    def __init__(self, firebase_key_path, csv_path):
+    def __init__(self, firebase_key_path, df):
         # Firebase Admin SDK 초기화
         if not len(firebase_admin._apps):
             cred = credentials.Certificate(firebase_key_path)
@@ -16,7 +16,7 @@ class WinePredictor:
         self.db = firestore.client()
         
         # 데이터 읽기
-        self.wine_data = pd.read_csv(csv_path)
+        self.wine_data = df #pd.read_csv(csv_path)
         self.red_wine_data = self.wine_data[self.wine_data['wine_type'] == 'Red wine']
         self.white_wine_data = self.wine_data[self.wine_data['wine_type'] == 'White wine']
         
@@ -27,10 +27,26 @@ class WinePredictor:
         self.scaler_white = None
         self.label_encoders = {}
         
-        # 모델 학습
-        self._train_models()
+           # 모델 학습
+        if self._has_reviews():
+            self._train_models()
+        else:
+            print("리뷰 데이터가 없습니다. 모델 학습을 건너뜁니다.")
+    
+    def _has_reviews(self):
+        # Firestore에서 리뷰 데이터가 존재하는지 확인
+        email = self._read_email()
+        reviews_ref = self.db.collection('review')
+        query = reviews_ref.where('email', '==', email).limit(1)
+        results = query.stream()
+        
+        return any(results)  # 데이터가 존재하면 True 반환
 
     def _train_models(self):
+        if not self._check_sample_size(min_samples=10):
+            print("샘플 수가 부족하여 모델 학습을 건너뜁니다.")
+            return
+    
         # Firestore에서 데이터 가져오기
         email = self._read_email()
         data = self._fetch_data_by_email(email)
@@ -170,6 +186,10 @@ class WinePredictor:
         })
 
     def predict_red_wine_score(self, body, texture, sweetness, acidity, flavor1, flavor2, flavor3):
+        if not self._check_sample_size(min_samples=10):
+            print("샘플 수가 부족하여 예측을 건너뜁니다.")
+            return None
+        
         # 입력 데이터 전처리
         input_data = self.preprocess_input_data(body, texture, sweetness, acidity, flavor1, flavor2, flavor3)
         
@@ -185,6 +205,9 @@ class WinePredictor:
         return predicted_score[0]
 
     def predict_white_wine_score(self, body, texture, sweetness, flavor1, flavor2, flavor3):
+        if not self._check_sample_size(min_samples=10):
+            print("샘플 수가 부족하여 예측을 건너뜁니다.")
+            return None
         # 입력 데이터 전처리
         input_data = self.preprocess_input_data(body, texture, sweetness, None, flavor1, flavor2, flavor3)
         
@@ -198,3 +221,11 @@ class WinePredictor:
         predicted_score = self.model_white.predict(input_data_scaled)
         
         return predicted_score[0]
+        
+    def _check_sample_size(self, min_samples=10):
+        # Firestore에서 데이터 가져오기
+        email = self._read_email()
+        data = self._fetch_data_by_email(email)
+        
+        # 샘플 수 체크
+        return len(data) >= min_samples

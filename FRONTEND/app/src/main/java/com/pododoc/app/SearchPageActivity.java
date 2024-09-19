@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -56,6 +57,7 @@ public class SearchPageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_page);
         getSupportActionBar().setTitle("와인 검색");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         retrofit=new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -218,5 +220,11 @@ public class SearchPageActivity extends AppCompatActivity {
         }
     }//Adapter
 
-
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==android.R.id.home){
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }//activity

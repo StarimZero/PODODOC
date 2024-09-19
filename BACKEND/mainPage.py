@@ -1,13 +1,13 @@
 import pandas as pd
 import json
 
-def get_basic_red_wines(page, price_range):
+def get_basic_red_wines(page, price_range, df):
     start = (page - 1) * 10
     end = page * 10
 
     try:
         # CSV 파일을 로드합니다
-        df = pd.read_csv('data/Combined_Wine_Data.csv')
+        #df = pd.read_csv('data/Combined_Wine_Data.csv')
 
         # 'Red wine'만 필터링합니다
         df_red_wine = df[df['wine_type'] == 'Red wine']
@@ -45,13 +45,13 @@ def get_basic_red_wines(page, price_range):
         return {"error": str(e)}
 
 
-def get_basic_white_wines(page, price_range):
+def get_basic_white_wines(page, price_range, df):
     start = (page - 1) * 10
     end = page * 10
 
     try:
         # CSV 파일을 로드합니다
-        df = pd.read_csv('data/Combined_Wine_Data.csv')
+        #df = pd.read_csv('data/Combined_Wine_Data.csv')
 
         # 'White wine'만 필터링합니다
         df_red_wine = df[df['wine_type'] == 'White wine']

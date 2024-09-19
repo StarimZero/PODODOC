@@ -1,10 +1,7 @@
 import pandas as pd
 
-def load_data():
-    return pd.read_csv('data/Combined_Wine_Data.csv')
-
-def search_wine(query, page=1, size=10):
-    data = load_data()
+def search_wine(df,query, page=1, size=10):
+    data = df
     
     query = query.lower()
     

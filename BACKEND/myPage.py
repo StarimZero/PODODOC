@@ -5,7 +5,7 @@ import json
 app = Flask(__name__)
 
 @app.route('/wine/basicrecommend.json')
-def wine():
+def wine(df):
     args = request.args
     page = int(args.get('page'))
     start = (page-1) * 10

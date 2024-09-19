@@ -40,6 +40,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -98,6 +99,8 @@ public class ReadActivity extends AppCompatActivity {
         predictPoint = findViewById(R.id.predictPoint);
         predictRating = findViewById(R.id.predictRating);
 
+        String email = user.getEmail();
+
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -130,8 +133,22 @@ public class ReadActivity extends AppCompatActivity {
                 winery.setText(vo.get("wine_winery").toString());
                 region.setText(vo.get("wine_region").toString());
                 country.setText(vo.get("wine_country").toString());
-                price.setText(vo.get("wine_price").toString() + " 원");
-                if(vo.get("acidity")==null){
+                String strPrice = vo.get("wine_price").toString();
+                if (!strPrice.isEmpty()) {
+                    // 소수점 제거
+                    strPrice = strPrice.split("\\.")[0];
+                    // 숫자를 천 단위로 포맷팅
+                    try {
+                        int priceValue = Integer.parseInt(strPrice);
+                        // 천 단위로 콤마를 넣기 위해 NumberFormat 사용
+                        NumberFormat numberFormat = NumberFormat.getInstance();
+                        strPrice = numberFormat.format(priceValue);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
+                price.setText(strPrice + "원");
+                if(vo.get("acidity").equals("")){
                     wineVO.setAcidity(0.0f);
                 }else{
                     wineVO.setAcidity(Float.parseFloat(vo.get("acidity").toString()));
@@ -448,7 +465,8 @@ public class ReadActivity extends AppCompatActivity {
     }
 
     private void predictWineScore(int index) {
-        Call<ResponseBody> call = service.predict(index);
+        String email = user.getEmail();
+        Call<ResponseBody> call = service.predict(email,index);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

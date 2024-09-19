@@ -4,9 +4,9 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.metrics.pairwise import euclidean_distances
 import re
 
-def find_similar_whites_from_index(target_index):
+def find_similar_whites_from_index(target_index,df):
     # 데이터 로딩
-    df = pd.read_csv('data/Combined_Wine_Data.csv')
+    df = df
     #타겟 와인 타입
     target_wine_type = df.loc[df['index'] == target_index, 'wine_type'].values[0]
     if target_wine_type == 'White wine':

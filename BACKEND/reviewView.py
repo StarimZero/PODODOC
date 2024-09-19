@@ -21,9 +21,9 @@ def initialize_firebase():
         cred = credentials.Certificate('C:/pododoc/key/kosmo-96bbe-60906db745e9.json')
         firebase_admin.initialize_app(cred)
 
-def load_country_data(file_path):
+def load_country_data(df):
     """CSV 파일에서 국가 데이터를 로드하고, 국가 이름을 일치시킵니다."""
-    df = pd.read_csv(file_path)
+    df = df
     country_data = df.set_index('index')['wine_country'].to_dict()
     
     # 미국의 이름을 일치시키기
@@ -59,7 +59,7 @@ def create_folium_map_choropleth(indexes, country_data):
     
     return m
 
-def save_map_to_html(email_file_path, csv_path, output_html_path):
+def save_map_to_html(email_file_path, df, output_html_path):
     """지도를 생성하고 HTML 파일로 저장합니다."""
     initialize_firebase()
     
@@ -68,7 +68,7 @@ def save_map_to_html(email_file_path, csv_path, output_html_path):
         email = file.read().strip()
 
     indexes = fetch_review_indexes(email)
-    country_data = load_country_data(csv_path)
+    country_data = load_country_data(df)
     folium_map = create_folium_map_choropleth(indexes, country_data)
     folium_map.save(output_html_path)
     
